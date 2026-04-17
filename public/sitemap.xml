@@ -19,15 +19,15 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.dclubfarmers.com/investors</loc>
-    <lastmod>2026-04-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://www.dclubfarmers.com/blog</loc>
     <lastmod>2026-04-18</lastmod>
     <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dclubfarmers.com/investors</loc>
+    <lastmod>2026-04-18</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
@@ -38,13 +38,13 @@
   </url>
   <url>
     <loc>https://www.dclubfarmers.com/privacy-policy</loc>
-    <lastmod>2026-04-01</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://dclubfarmers.com/terms-of-service</loc>
-    <lastmod>2026-04-01</lastmod>
+    <loc>https://www.dclubfarmers.com/terms-of-service</loc>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
