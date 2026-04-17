@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Disallow admin paths
+Disallow: /admin
+Disallow: /admin/*
+
+Sitemap: https://www.dclubfarmers.com/sitemap.xml
