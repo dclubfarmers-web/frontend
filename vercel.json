@@ -1,10 +1,8 @@
 {
-  "version": 2,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|favicon.ico|favicon.svg|logo.png|icons.svg|output.css).*)",
       "destination": "/index.html"
     }
-  ],
-  "cleanUrls": true
+  ]
 }
