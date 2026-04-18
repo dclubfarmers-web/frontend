@@ -11,7 +11,10 @@ const SiteSettings = () => {
     contactEmail: 'contact@djairindia.com',
     supportNumber: '+91 1234567890',
     address: 'Bengaluru, Karnataka, India',
-    maintenanceMode: false,
+    maintenance: {
+      enabled: false,
+      pages: [] // Empty means all pages
+    },
     enableNotifications: true,
   });
   const [loading, setLoading] = useState(true);
@@ -36,10 +39,35 @@ const SiteSettings = () => {
     e.preventDefault();
     setSaving(true);
     try {
-       await api.put('/api/settings', { settings });
+       // Send all keys in settings object individually
+       await api.put('/api/settings', settings);
        alert('Configuration updated successfully.');
     } catch (err) { alert(err.message); }
     setSaving(false);
+  };
+
+  const APP_PAGES = [
+    { id: '/', label: 'Home Page' },
+    { id: '/about', label: 'About Us' },
+    { id: '/career', label: 'Careers & Jobs' },
+    { id: '/blog', label: 'Insights & Blog' },
+    { id: '/investors', label: 'Investors' },
+    { id: '/contact', label: 'Support & Contact' },
+  ];
+
+  const handlePageToggle = (pageId) => {
+    const pages = [...(settings.maintenance?.pages || [])];
+    if (pages.includes(pageId)) {
+      setSettings({
+        ...settings,
+        maintenance: { ...settings.maintenance, pages: pages.filter(p => p !== pageId) }
+      });
+    } else {
+      setSettings({
+        ...settings,
+        maintenance: { ...settings.maintenance, pages: [...pages, pageId] }
+      });
+    }
   };
 
   const tabs = [
@@ -112,24 +140,80 @@ const SiteSettings = () => {
                              />
                           </div>
 
-                          <div className="md:col-span-2">
-                             <label className="flex items-center gap-4 cursor-pointer p-4 bg-slate-50 border border-slate-100 rounded-2xl transition-all">
-                             <div className="relative">
-                                <input 
-                                   type="checkbox" 
-                                   className="sr-only" 
-                                   checked={settings.maintenanceMode}
-                                   onChange={(e) => setSettings({...settings, maintenanceMode: e.target.checked})}
-                                />
-                                <div className={`w-12 h-6 rounded-full transition-all ${settings.maintenanceMode ? 'bg-amber-500' : 'bg-slate-200'}`}></div>
-                                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all ${settings.maintenanceMode ? 'translate-x-6' : ''}`}></div>
+                          <div className="md:col-span-2 space-y-4">
+                             <div className="p-6 bg-slate-50 border border-slate-200 rounded-[2rem] space-y-6">
+                                <div className="flex items-center justify-between">
+                                   <div className="flex items-center gap-4">
+                                      <div className={`p-3 rounded-2xl ${settings.maintenance?.enabled ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400'}`}>
+                                         <Hammer size={24} />
+                                      </div>
+                                      <div>
+                                         <p className="text-sm font-bold text-slate-800">Maintenance Mode</p>
+                                         <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Restrict user access to specific areas</p>
+                                      </div>
+                                   </div>
+                                   <label className="relative inline-flex items-center cursor-pointer">
+                                      <input 
+                                         type="checkbox" 
+                                         className="sr-only peer" 
+                                         checked={settings.maintenance?.enabled || false}
+                                         onChange={(e) => setSettings({...settings, maintenance: { ...settings.maintenance, enabled: e.target.checked }})}
+                                      />
+                                      <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                   </label>
+                                </div>
+
+                                {settings.maintenance?.enabled && (
+                                   <motion.div 
+                                      initial={{ opacity: 0, height: 0 }} 
+                                      animate={{ opacity: 1, height: 'auto' }}
+                                      className="pt-6 border-t border-slate-200 space-y-4"
+                                   >
+                                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Select Pages to Lock</p>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                         <button
+                                            type="button"
+                                            onClick={() => setSettings({...settings, maintenance: { ...settings.maintenance, pages: [] }})}
+                                            className={`flex items-center gap-3 p-4 rounded-2xl border transition-all text-xs font-bold ${
+                                               !settings.maintenance?.pages?.length 
+                                               ? 'bg-[#1A3D24] border-[#1A3D24] text-white shadow-lg' 
+                                               : 'bg-white border-slate-200 text-slate-600 hover:border-[#1A3D24]'
+                                            }`}
+                                         >
+                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${!settings.maintenance?.pages?.length ? 'border-white' : 'border-slate-300'}`}>
+                                               {!settings.maintenance?.pages?.length && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                            </div>
+                                            All Pages (Entire Site)
+                                         </button>
+
+                                         {APP_PAGES.map(page => (
+                                            <button
+                                               key={page.id}
+                                               type="button"
+                                               onClick={() => handlePageToggle(page.id)}
+                                               className={`flex items-center gap-3 p-4 rounded-2xl border transition-all text-xs font-bold ${
+                                                  settings.maintenance?.pages?.includes(page.id)
+                                                  ? 'bg-blue-600 border-blue-600 text-white shadow-lg' 
+                                                  : 'bg-white border-slate-200 text-slate-600 hover:border-blue-600'
+                                               }`}
+                                            >
+                                               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${settings.maintenance?.pages?.includes(page.id) ? 'border-white' : 'border-slate-300'}`}>
+                                                  {settings.maintenance?.pages?.includes(page.id) && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                               </div>
+                                               {page.label}
+                                            </button>
+                                         ))}
+                                      </div>
+                                      <div className="p-4 bg-amber-50 rounded-2xl flex gap-3 italic">
+                                         <Info size={16} className="text-amber-600 shrink-0" />
+                                         <p className="text-[10px] text-amber-800">
+                                            Admin routes (e.g., /admin/*) are never locked to prevent losing access to this panel.
+                                         </p>
+                                      </div>
+                                   </motion.div>
+                                )}
                              </div>
-                             <div>
-                                <p className="text-sm font-bold text-slate-800">Maintenance Mode</p>
-                                <p className="text-[10px] text-slate-500 uppercase font-bold">Lock platform access for users</p>
-                             </div>
-                          </label>
-                       </div>
+                          </div>
                     </div>
                  </div>
               </motion.div>

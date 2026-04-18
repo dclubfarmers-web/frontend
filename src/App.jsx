@@ -15,6 +15,8 @@ import TermsOfService from './pages/TermsOfService';
 import Todos from './pages/Todos';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Maintenance from './pages/Maintenance';
+import { useSettings } from './context/SettingsContext';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -50,6 +52,31 @@ const PageWrapper = ({ children }) => (
   </motion.div>
 );
 
+const MaintenanceGuard = ({ children }) => {
+  const { settings, loading } = useSettings();
+  const location = useLocation();
+  
+  if (loading) return null;
+  
+  const maintenance = settings?.maintenance;
+  
+  if (maintenance?.enabled) {
+    // Basic paths that are always allowed
+    if (location.pathname.startsWith('/admin') || location.pathname === '/maintenance') {
+      return children;
+    }
+    
+    // Check if entire site is locked or specific page
+    const isLocked = !maintenance.pages || maintenance.pages.length === 0 || maintenance.pages.includes(location.pathname);
+    
+    if (isLocked) {
+      return <Navigate to="/maintenance" replace />;
+    }
+  }
+  
+  return children;
+};
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   
@@ -57,8 +84,16 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         
+        {/* MAINTENANCE PAGE */}
+        <Route path="/maintenance" element={<Maintenance />} />
+
         {/* PUBLIC SITE WITH HEADER/FOOTER */}
-        <Route element={<><ScrollToTop /><Layout /></>}>
+        <Route element={
+          <MaintenanceGuard>
+            <ScrollToTop />
+            <Layout />
+          </MaintenanceGuard>
+        }>
             <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
             <Route path="/career" element={<PageWrapper><Career /></PageWrapper>} />
             <Route path="/career/:id" element={<PageWrapper><JobDetails /></PageWrapper>} />

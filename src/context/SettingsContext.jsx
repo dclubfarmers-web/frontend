@@ -10,7 +10,10 @@ export const SettingsProvider = ({ children }) => {
     contactEmail: 'support@djairindia.com',
     supportNumber: '+91 1234567890',
     address: 'Bengaluru, Karnataka, India',
-    maintenanceMode: false,
+    maintenance: {
+      enabled: false,
+      pages: []
+    },
     aboutHeroTitle: 'About DJAIRINDIA PVT LTD',
     aboutHeroDescription: 'Transforming agriculture careers and entrepreneurship through innovation and community.',
     aboutMission: 'Empower farmers and youth with jobs and startup opportunities through tech-enabled solutions.',

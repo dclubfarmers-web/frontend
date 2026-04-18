@@ -72,7 +72,7 @@ const Home = () => {
             
           </motion.div>
         </div>
-        <div className="hero-image-container" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=100&w=2070")' }}></div>
+        <div className="hero-image-container" style={{ backgroundImage: 'url(/hero.jpeg)' }}></div>
       </section>
 
       {/* Features Section */}
