@@ -10,7 +10,7 @@ const Navbar = () => {
     { label: 'Home', path: '/' },
     { label: 'About', path: '/about' },
     { label: 'Careers', path: '/career' },
-    { label: 'Investors Desk', path: '/investors' },
+    //{ label: 'Investors Desk', path: '/investors' },
     { label: 'Blog', path: '/blog' },
     { label: 'Contact', path: '/contact' }
   ];
