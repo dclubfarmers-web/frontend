@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, Rocket, TrendingUp, CheckCircle2, Star, Users, Globe, FileText } from 'lucide-react';
+import { Briefcase, Rocket, TrendingUp, CheckCircle2, Star, Users, Globe, FileText, Search, Upload, Sliders, MapPin, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Loader from '../components/Loader';
@@ -100,34 +100,65 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Latest Jobs */}
-      <section className="section">
+      {/* Job Seeker Section */}
+      <section className="section" style={{ background: '#EBF5FF', padding: '100px 0' }}>
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '2.5rem', color: '#1A3D24' }}>Latest Jobs</h2>
-            <Link to="/career" style={{ color: '#1A3D24', fontWeight: '700' }}>View All Jobs →</Link>
-          </div>
-          <div className="grid grid-cols-2">
-            {loading ? (
-              <div className="col-span-2 text-center py-10"><Loader /></div>
-            ) : jobs.length > 0 ? (
-              jobs.map((job, i) => (
-                <div key={i} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{job.title}</h3>
-                    <p style={{ fontWeight: '600', color: '#1A3D24' }}>{job.company}</p>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>📍 {job.location} | 💼 {job.job_type}</p>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '0.5rem' }}>{job.salary}</p>
-                    <button onClick={() => navigate('/career')} className="btn btn-outline" style={{ padding: '0.5rem 1rem', color: '#1A3D24', borderColor: '#1A3D24' }}>Apply</button>
-                  </div>
+            {/* Centered Job List Column */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              style={{ maxWidth: '900px', margin: '0 auto' }}
+              className="w-full"
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h2 style={{ fontSize: '2.5rem', color: '#1A3D24' }}>Search Agriculture Jobs</h2>
+                <Link to="/career" style={{ color: '#1A3D24', fontWeight: '800' }}>View All →</Link>
+              </div>
+
+              {/* Search Bar */}
+              <div className="flex gap-4 mb-8">
+                <div className="flex-1 relative">
+                  <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="text" 
+                    placeholder="Job title or keywords..."
+                    className="w-full p-5 pl-14 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-[#1A3D24]"
+                  />
                 </div>
-              ))
-            ) : (
-              <p className="col-span-2 text-center text-slate-400 italic">No live positions currently. Check back later.</p>
-            )}
-          </div>
+                <button className="flex items-center gap-2 px-6 py-5 bg-[#F0F9FF] text-[#034D75] border border-blue-100 font-bold rounded-2xl hover:bg-blue-100 transition-all">
+                  <Sliders size={20} /> Filters
+                </button>
+              </div>
+
+              {/* Job List Preview */}
+              <div className="space-y-4">
+                {loading ? (
+                  <div className="py-10 text-center"><Loader /></div>
+                ) : jobs.length > 0 ? (
+                  jobs.map((job, i) => (
+                    <div 
+                      key={i} 
+                      className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-center justify-between group cursor-pointer"
+                      onClick={() => navigate('/career')}
+                    >
+                      <div>
+                        <h3 className="text-xl font-bold text-[#034D75] group-hover:text-[#023B59] mb-1">{job.title}</h3>
+                        <div className="flex items-center gap-4 text-slate-500 font-medium">
+                          <span className="flex items-center gap-1.5"><MapPin size={16} /> {job.location}</span>
+                          <span className="flex items-center gap-1.5"><Briefcase size={16} /> {job.job_type}</span>
+                        </div>
+                      </div>
+                      <div className="text-right flex items-center gap-4">
+                        <span className="font-bold text-[#034D75] text-lg">{job.salary}</span>
+                        <ChevronRight size={24} className="text-slate-300 group-hover:text-[#034D75] transition-all" />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-slate-400 italic py-10">No live positions currently. Check back later.</p>
+                )}
+              </div>
+            </motion.div>
         </div>
       </section>
 

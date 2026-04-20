@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
-import { Settings, Save, Globe, Mail, Shield, Smartphone, Bell, Info, Laptop } from 'lucide-react';
+import { Settings, Save, Globe, Mail, Shield, Smartphone, Bell, Info, Laptop, Hammer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ImageUpload from '../../components/ImageUpload';
 

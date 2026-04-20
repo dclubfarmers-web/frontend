@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../utils/supabase';
+import api from '../utils/api';
 import { ShieldCheck, User, Lock, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const AcceptInvitation = () => {
@@ -23,18 +23,15 @@ const AcceptInvitation = () => {
         return;
       }
 
-      // In a real app, you'd call a backend endpoint to validate this token
-      // Here we check the DB directly for simplicity in this walkthrough
-      const { data, error } = await supabase
-        .from('invitations')
-        .select('*')
-        .eq('token', token)
-        .single();
-
-      if (error || !data) {
-        setError("This invitation has already been used or has expired.");
-      } else {
-        setInvitation(data);
+      try {
+        const data = await api.get(`/api/invitations/${token}`);
+        if (data) {
+          setInvitation(data);
+        } else {
+          setError("This invitation has already been used or has expired.");
+        }
+      } catch (err) {
+        setError(err.message || "Failed to verify invitation.");
       }
       setLoading(false);
     };
@@ -47,26 +44,17 @@ const AcceptInvitation = () => {
     setSubmitting(true);
     setError(null);
 
-    // 1. Create the user account in Supabase
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: invitation.email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: invitation.role,
-        }
-      }
-    });
-
-    if (authError) {
-      setError(authError.message);
-    } else {
-      // 2. Delete the used invitation
-      await supabase.from('invitations').delete().eq('id', invitation.id);
+    try {
+      await api.post('/api/invitations/accept', { 
+        token, 
+        fullName, 
+        password 
+      });
       
       setSuccess(true);
-      setTimeout(() => navigate('/'), 4000);
+      setTimeout(() => navigate('/admin/login'), 4000);
+    } catch (err) {
+      setError(err.message || "Failed to create account. Please try again.");
     }
     setSubmitting(false);
   };

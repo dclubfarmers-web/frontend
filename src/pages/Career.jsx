@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // DJAIRINDIA - Career Ecosystem
 import { motion } from 'framer-motion';
-import { Search, Briefcase, ChevronRight, Compass, Users, Globe, Rocket, MapPin, FileText } from 'lucide-react';
+import { Search, Briefcase, ChevronRight, Compass, Users, Globe, Rocket, MapPin, FileText, Upload, Sliders } from 'lucide-react';
 // Force Refresh: 1776458273452
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
@@ -214,54 +214,134 @@ const Career = () => {
 
       {/* Main Content Area */}
       {activeTab === 'job-seeker' ? (
-        <section className="section" style={{ background: '#F8FAFC', padding: '60px 0 100px' }}>
+        <section className="section" style={{ background: '#EBF5FF', padding: '100px 0' }}>
           <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: '#1A3D24' }}>Open Positions</h2>
-              <div style={{ maxWidth: '500px', margin: '0 auto', position: 'relative' }}>
-                  <Search size={18} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                  <input 
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              
+              {/* Left Column: Quick Resume Upload */}
+              <div className="lg:col-span-5">
+                <h2 style={{ fontSize: '2rem', marginBottom: '2rem', color: '#034D75' }}>Quick Resume Upload</h2>
+                <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100">
+                  <form onSubmit={(e) => handleSubmission(e, 'job')} className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-bold text-[#034D75] mb-2">Full Name</label>
+                      <input 
+                        type="text" 
+                        required 
+                        placeholder="e.g. John Doe"
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-[#034D75] outline-none transition-all"
+                        value={formData.fullName}
+                        onChange={e => setFormData({...formData, fullName: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#034D75] mb-2">Email Address</label>
+                      <input 
+                        type="email" 
+                        required 
+                        placeholder="e.g. john@example.com"
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-[#034D75] outline-none transition-all"
+                        value={formData.email}
+                        onChange={e => setFormData({...formData, email: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#034D75] mb-2">Phone Number</label>
+                      <input 
+                        type="tel" 
+                        required 
+                        placeholder="e.g. +91 9876543210"
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-[#034D75] outline-none transition-all"
+                        value={formData.phone}
+                        onChange={e => setFormData({...formData, phone: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#034D75] mb-2">Resume (PDF)</label>
+                      <div className="relative">
+                        <input 
+                          type="file" 
+                          id="resume-upload"
+                          className="hidden" 
+                          onChange={(e) => handleFileUpload(e)}
+                          accept=".pdf"
+                        />
+                        <label 
+                          htmlFor="resume-upload"
+                          className="flex flex-col items-center justify-center p-10 border-2 border-dashed border-slate-200 rounded-3xl cursor-pointer hover:border-[#034D75] transition-all bg-slate-50 group"
+                        >
+                          <Upload size={32} className="text-slate-400 group-hover:text-[#034D75] mb-4" />
+                          <span className="text-sm font-medium text-slate-500 group-hover:text-[#034D75]">
+                            {uploading ? 'Uploading...' : dprFileUrl ? 'Resume Uploaded!' : 'Click or drag file to upload'}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                    <button 
+                      disabled={submitting || uploading}
+                      className="w-full py-5 bg-[#034D75] hover:bg-[#023B59] text-white font-bold rounded-2xl transition-all shadow-lg text-lg"
+                    >
+                      {submitting ? 'Submitting...' : 'Submit My Profile'}
+                    </button>
+                    {success && <p className="text-center text-green-600 font-bold mt-4">Application Sent Successfully!</p>}
+                  </form>
+                </div>
+              </div>
+
+              {/* Right Column: Search Agriculture Jobs */}
+              <div className="lg:col-span-7">
+                <h2 style={{ fontSize: '2rem', marginBottom: '2rem', color: '#1A3D24' }}>Search Agriculture Jobs</h2>
+                
+                {/* Search & Filter Bar */}
+                <div className="flex gap-4 mb-8">
+                  <div className="flex-1 relative">
+                    <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input 
                       type="text" 
-                      className="w-full p-4 pl-12 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none focus:ring-1 focus:ring-[#1A3D24] transition-all" 
-                      placeholder="Search by role or location..." 
+                      placeholder="Job title or keywords..."
+                      className="w-full p-5 pl-14 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-[#1A3D24]"
                       value={search}
                       onChange={e => setSearch(e.target.value)}
-                  />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {loading ? (
-                <div className="col-span-full py-20"><Loader /></div>
-              ) : filteredJobs.length > 0 ? (
-                filteredJobs.map((job) => (
-                  <div 
-                      key={job.id} 
-                      className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#1A3D24] transition-all group flex flex-col cursor-pointer"
-                      onClick={() => navigate(`/career/${job.id}`)}
-                  >
-                    <div className="flex justify-between items-start mb-6">
-                      <span className="px-3 py-1 bg-green-50 text-[#1A3D24] rounded-full text-[10px] font-black uppercase tracking-widest">{job.job_type || 'Full Time'}</span>
-                      <button className="text-slate-200 group-hover:text-[#1A3D24] transition-all"><ChevronRight size={24} /></button>
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-[#1A3D24]">{job.title}</h3>
-                    <p className="text-sm font-bold text-slate-500 mb-6 flex-1 italic">{job.company}</p>
-                    
-                    <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase">
-                          <MapPin size={14} /> {job.location}
-                      </div>
-                      <span className="text-sm font-bold text-slate-800">{job.salary || 'Competitive'}</span>
-                    </div>
+                    />
                   </div>
-                ))
-              ) : (
-                <div className="col-span-full py-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
-                  <Briefcase size={48} className="mx-auto text-slate-200 mb-4" />
-                  <p className="text-slate-400 italic text-lg font-medium">Currently no open positions match your search.</p>
-                  <p className="text-sm text-slate-400 mt-2">Check back soon or try our Dream Achiever program.</p>
+                  <button className="flex items-center gap-2 px-6 py-5 bg-[#F0F9FF] text-[#034D75] border border-blue-100 font-bold rounded-2xl hover:bg-blue-100 transition-all">
+                    <Sliders size={20} /> Filters
+                  </button>
                 </div>
-              )}
+
+                {/* Job List */}
+                <div className="space-y-4">
+                  {loading ? (
+                    <div className="py-20 text-center"><Loader /></div>
+                  ) : filteredJobs.length > 0 ? (
+                    filteredJobs.map((job) => (
+                      <div 
+                        key={job.id} 
+                        className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-center justify-between group cursor-pointer"
+                        onClick={() => navigate(`/career/${job.id}`)}
+                      >
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-[#034D75] group-hover:text-[#023B59] mb-1">{job.title}</h3>
+                          <div className="flex items-center gap-4 text-slate-500 font-medium">
+                            <span className="flex items-center gap-1.5"><MapPin size={16} /> {job.location}</span>
+                            <span className="flex items-center gap-1.5"><Briefcase size={16} /> {job.job_type || 'Full-time'}</span>
+                          </div>
+                        </div>
+                        <div className="text-right flex items-center gap-4">
+                          <span className="font-bold text-[#034D75] text-lg">{job.salary || 'Competitive'}</span>
+                          <ChevronRight size={24} className="text-slate-300 group-hover:text-[#034D75] transition-all" />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-100">
+                      <Briefcase size={48} className="mx-auto text-slate-200 mb-4" />
+                      <p className="text-slate-400 font-medium italic">No jobs found matching your search.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
