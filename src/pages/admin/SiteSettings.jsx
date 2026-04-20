@@ -92,14 +92,14 @@ const SiteSettings = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Navigation Tabs */}
-        <div className="lg:col-span-1 space-y-2">
+        <div className="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide shrink-0">
            {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all text-sm ${
+                className={`flex items-center gap-2 lg:gap-3 px-4 lg:px-6 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-bold transition-all text-xs lg:text-sm whitespace-nowrap lg:whitespace-normal shrink-0 ${
                    activeTab === tab.id ? 'bg-white shadow-sm border border-slate-200 text-blue-600' : 'text-slate-500 hover:bg-slate-100/50'
                 }`}
               >
@@ -110,7 +110,7 @@ const SiteSettings = () => {
         </div>
 
         {/* Content Area */}
-        <div className="lg:col-span-3 bg-white rounded-[2rem] border border-slate-200 shadow-sm p-10">
+        <div className="flex-1 bg-white rounded-2xl lg:rounded-[2rem] border border-slate-200 shadow-sm p-4 sm:p-8 lg:p-10 transition-all">
            <form onSubmit={handleSave} className="space-y-8">
               {activeTab === 'general' && (
                  <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">

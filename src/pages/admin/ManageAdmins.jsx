@@ -113,7 +113,7 @@ const ManageAdmins = () => {
            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest px-2">
               <UserCheck size={14} /> Active Administrators ({admins.length})
            </div>
-           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
              <table className="w-full text-left">
                <thead className="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-widest font-bold border-b border-slate-200">
                  <tr>

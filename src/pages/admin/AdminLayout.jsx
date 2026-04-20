@@ -44,6 +44,55 @@ const AdminLayout = () => {
   return (
     <div className="flex h-screen bg-[#F8FAFC] text-[#1E293B] font-sans overflow-hidden">
       
+      {/* Mobile Drawer Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar */}
+      <aside className={`fixed top-0 left-0 bottom-0 w-72 bg-white z-[60] shadow-2xl transition-transform duration-300 lg:hidden ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <img src="/logo.png" alt="Logo" className="h-12 object-contain" />
+          <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg bg-slate-50">
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-140px)]">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center px-4 py-3.5 rounded-xl transition-all font-semibold text-sm ${
+                location.pathname === item.path
+                  ? 'bg-[#1A3D24] text-white shadow-lg shadow-green-900/20'
+                  : 'hover:bg-slate-50 text-slate-600'
+              }`}
+            >
+              <span className={`mr-3 ${location.pathname === item.path ? 'text-white' : 'text-slate-400'}`}>{item.icon}</span>
+              <span>{item.name}</span>
+              {location.pathname === item.path && <ChevronRight size={14} className="ml-auto opacity-50" />}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-slate-50 border-t border-slate-100">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors font-bold text-sm"
+          >
+            <LogOut size={18} />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </aside>
+
       {/* Sidebar - Desktop */}
       <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-col shrink-0">
         <div className="p-6 border-b border-slate-100 flex items-center justify-center">
@@ -80,26 +129,26 @@ const AdminLayout = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden text-slate-500">
-              <Menu size={20} />
+        <header className="h-16 bg-white border-b border-slate-200 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-10 w-full">
+          <div className="flex items-center gap-3 lg:gap-4 overflow-hidden">
+            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-50 rounded-lg">
+              <Menu size={24} />
             </button>
-            <h2 className="text-lg font-bold text-slate-800">{currentPathName}</h2>
+            <h2 className="text-base lg:text-lg font-bold text-slate-800 truncate">{currentPathName}</h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex flex-col items-end">
-              <span className="text-sm font-semibold text-slate-700">{user?.name || 'Admin'}</span>
-              <span className="text-xs text-slate-500">{user?.email || 'admin@djairindia.com'}</span>
+          <div className="flex items-center gap-2 lg:gap-3">
+            <div className="hidden sm:flex flex-col items-end">
+              <span className="text-sm font-semibold text-slate-700 truncate max-w-[120px]">{user?.name || 'Admin'}</span>
+              <span className="text-[10px] lg:text-xs text-slate-500 truncate max-w-[150px]">{user?.email || 'admin@djairindia.com'}</span>
             </div>
-            <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[#0369A1] font-bold">
+            <div className="h-9 w-9 lg:h-10 lg:w-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[#0369A1] font-bold text-sm">
                {(user?.name || 'AD').substring(0, 2).toUpperCase()}
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 lg:p-10">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-10">
           <Outlet />
         </main>
       </div>

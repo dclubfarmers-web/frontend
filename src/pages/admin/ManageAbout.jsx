@@ -114,14 +114,14 @@ const ManageAbout = () => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
                 {/* Sidebar Navigation */}
-                <div className="lg:col-span-1 space-y-1">
+                <div className="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm border ${
+                            className={`flex items-center gap-2 lg:gap-3 px-4 py-3 rounded-xl font-bold transition-all text-xs lg:text-sm border whitespace-nowrap shrink-0 ${
                                 activeTab === tab.id ? 'bg-white border-slate-200 text-[#1A3D24] shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-50'
                             }`}
                         >
