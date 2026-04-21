@@ -29,7 +29,7 @@ const Navbar = () => {
       <nav className="site-nav">
         <div className="container">
           <Link to="/" className="logo">
-            <img src="/logo.png" alt="DJAIRINDIA" style={{ height: '100px', objectFit: 'contain' }} />
+            <img src="/logo.png" alt="DJAIRINDIA" fetchpriority="high" style={{ height: '100px', objectFit: 'contain' }} />
           </Link>
 
           {/* Desktop Nav */}
@@ -60,7 +60,7 @@ const Navbar = () => {
       <div className={`mobile-drawer ${isOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-header">
            <Link to="/" onClick={() => setIsOpen(false)} className="mobile-logo">
-             <img src="/logo.png" alt="DJAIRINDIA" style={{ height: '80px', objectFit: 'contain' }} />
+             <img src="/logo.png" alt="DJAIRINDIA" fetchpriority="high" style={{ height: '80px', objectFit: 'contain' }} />
            </Link>
            <button className="mobile-close-btn" onClick={() => setIsOpen(false)}>
              <X size={28} />
