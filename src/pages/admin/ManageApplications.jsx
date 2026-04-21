@@ -67,11 +67,13 @@ const ManageApplications = () => {
                 <td className="px-6 py-4">
                    <div className="flex items-center gap-3">
                       <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs border border-blue-100 uppercase">
-                         {app.applicant?.full_name?.substring(0, 2) || 'AP'}
+                         {(app.applicant?.full_name || app.guest_name || 'AP').substring(0, 2)}
                       </div>
                       <div>
-                         <p className="font-bold text-slate-800">{app.applicant?.full_name || 'Anonymous Applicant'}</p>
-                         <p className="text-[10px] text-slate-500 font-semibold flex items-center gap-1 uppercase tracking-tighter"><Mail size={10}/> {app.applicant?.email}</p>
+                         <p className="font-bold text-slate-800">{app.applicant?.full_name || app.guest_name || 'Anonymous Applicant'}</p>
+                         <p className="text-[10px] text-slate-500 font-semibold flex items-center gap-1 uppercase tracking-tighter">
+                            <Mail size={10}/> {app.applicant?.email || app.guest_email || 'No Email'}
+                         </p>
                       </div>
                    </div>
                 </td>

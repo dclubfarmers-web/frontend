@@ -28,8 +28,50 @@ const Career = () => {
       // DPR Specific
       projectTitle: '',
       investmentTarget: '',
-      timeline: ''
+      timeline: '',
+      category: '',
+      subcategory: '',
+      location: ''
   });
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const businessCategories = [
+    { 
+      id: 'livestock', 
+      title: 'Livestock', 
+      icon: '🐄', 
+      color: 'bg-orange-50 text-orange-600 border-orange-100',
+      subs: ['Dairy', 'Poultry', 'Goat', 'Sheep'] 
+    },
+    { 
+      id: 'aqua', 
+      title: 'Aqua', 
+      icon: '🐟', 
+      color: 'bg-blue-50 text-blue-600 border-blue-100',
+      subs: ['Fish', 'Shrimp', 'Aquaponics'] 
+    },
+    { 
+      id: 'crop', 
+      title: 'Crop', 
+      icon: '🌾', 
+      color: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      subs: ['Field Crops', 'Horticulture'] 
+    },
+    { 
+      id: 'manufacturing', 
+      title: 'Manufacturing', 
+      icon: '🏭', 
+      color: 'bg-slate-50 text-slate-600 border-slate-100',
+      subs: ['Food Processing', 'Dairy', 'Packaging'] 
+    },
+    { 
+      id: 'other', 
+      title: 'Other', 
+      icon: '✨', 
+      color: 'bg-purple-50 text-purple-600 border-purple-100',
+      subs: ['Custom Project', 'Innovation', 'Not Listed'] 
+    }
+  ];
 
   useEffect(() => {
     fetchJobs();
@@ -68,8 +110,8 @@ const Career = () => {
     try {
         if (type === 'dream') {
             await api.post('/api/dpr', {
-                title: formData.projectTitle || 'Dream Achiever Vision',
-                details: `MISSION: ${formData.summary}\nTIMELINE: ${formData.timeline}\nVALUE: ${formData.investmentTarget}`,
+                title: formData.projectTitle || `DPR: ${formData.category} - ${formData.subcategory}`,
+                details: `MISSION: ${formData.summary}\nTIMELINE: ${formData.timeline}\nVALUE: ${formData.investmentTarget}\nCATEGORY: ${formData.category}\nSUBCATEGORY: ${formData.subcategory}\nLOCATION: ${formData.location}`,
                 dreamValue: parseInt(formData.investmentTarget.replace(/[^0-9]/g, '')) || 0,
                 dprUrl: dprFileUrl,
                 fullName: formData.fullName,
@@ -348,105 +390,157 @@ const Career = () => {
       ) : (
         <section className="section" style={{ background: '#F8FAFC', padding: '60px 0 100px' }}>
           <div className="container">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-               {/* Program Details */}
-               <div className="space-y-8">
-                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-amber-50 text-amber-700 rounded-full font-bold text-xs uppercase tracking-widest border border-amber-100">
-                    <Rocket size={14} /> Elite Program
-                  </div>
-                  <h2 className="text-4xl font-bold text-slate-900 leading-tight">DJAIRINDIA <br/><span className="text-[#1A3D24]">Dream Achiever</span> Program</h2>
-                  <p className="text-lg text-slate-600 leading-relaxed">
-                    Designed for high-impact leaders, tech mavericks, and agricultural visionaries. This is not just a job; it's a trajectory for those who want to build the next generation of India's agrarian infrastructure.
-                  </p>
-                  
-                  <div className="space-y-6">
-                    <div className="flex gap-4 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                      <div className="p-3 bg-green-50 text-[#1A3D24] rounded-2xl h-fit"><Users size={24}/></div>
-                      <div>
-                        <h4 className="font-bold text-slate-800 mb-1">Direct Mentorship</h4>
-                        <p className="text-sm text-slate-500">Work directly with our founders and executive team on strategic initiatives.</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                      <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl h-fit"><Globe size={24}/></div>
-                      <div>
-                        <h4 className="font-bold text-slate-800 mb-1">Fast-Track Growth</h4>
-                        <p className="text-sm text-slate-500">Accelerated path to leadership roles within the DJAIRINDIA ecosystem.</p>
-                      </div>
-                    </div>
-                  </div>
+            <div className="text-center mb-16">
+               <div className="inline-flex items-center gap-3 px-4 py-2 bg-amber-50 text-amber-700 rounded-full font-bold text-xs uppercase tracking-widest border border-amber-100 mb-6">
+                  <Rocket size={14} /> Elite Incubation Program
+               </div>
+               <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Launch Your Business</h2>
+               <p className="text-lg text-slate-500 max-w-2xl mx-auto">Select a category, share your vision, and get professional DPR support from the DJAIRINDIA ecosystem.</p>
+            </div>
+
+            {/* Top Area: Category Selection */}
+            <div className="space-y-8 mb-12">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  {businessCategories.map((cat) => (
+                     <motion.div 
+                       key={cat.id}
+                       whileHover={{ y: -5 }}
+                       whileTap={{ scale: 0.98 }}
+                       onClick={() => {
+                         setSelectedCategory(cat);
+                         setFormData({...formData, category: cat.title, subcategory: ''});
+                       }}
+                       className={`p-5 rounded-3xl border-2 cursor-pointer transition-all ${selectedCategory?.id === cat.id ? 'border-[#1A3D24] bg-white shadow-xl' : 'border-transparent bg-white shadow-sm hover:shadow-md'}`}
+                     >
+                        <div className={`w-12 h-12 rounded-2xl ${cat.color} flex items-center justify-center text-2xl mb-3 border`}>
+                           {cat.icon}
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-800 mb-1">{cat.title}</h3>
+                        <p className="text-[10px] text-slate-500 font-medium leading-tight">Professional support for {cat.title}.</p>
+                     </motion.div>
+                  ))}
                </div>
 
-               {/* Simplified Submission Form */}
-               <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl max-w-lg mx-auto lg:mx-0 relative">
-                  {success ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Rocket size={32} />
-                      </div>
-                      <h3 className="text-xl font-bold mb-2">Signal Sent!</h3>
-                      <p className="text-sm text-slate-500">Your DPR has been received. We reach out for strategic alignments quickly.</p>
+               {selectedCategory && (
+                 <motion.div 
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-wrap items-center gap-3"
+                 >
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-4">Select Sub-Category:</h3>
+                    {selectedCategory.subs.map(sub => (
+                       <button 
+                         key={sub}
+                         onClick={() => setFormData({...formData, subcategory: sub})}
+                         className={`px-4 py-2 rounded-full text-[11px] font-bold transition-all border ${formData.subcategory === sub ? 'bg-[#1A3D24] text-white border-[#1A3D24]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#1A3D24]'}`}
+                       >
+                          {sub}
+                       </button>
+                    ))}
+                 </motion.div>
+               )}
+            </div>
+
+            {/* Bottom Area: Wide & Short Form */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-2xl relative overflow-hidden">
+               {/* Decorative Background */}
+               <div className="absolute top-0 right-0 w-48 h-48 bg-[#1A3D24] opacity-[0.02] rounded-bl-full -mr-24 -mt-24"></div>
+               
+               {success ? (
+                 <div className="text-center py-8">
+                   <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                       <CheckCircle2 size={32} />
+                   </div>
+                   <h3 className="text-xl font-bold mb-1">DPR Ingested</h3>
+                   <p className="text-xs text-slate-500">Vision for {formData.subcategory} transmitted to our strategic team.</p>
+                 </div>
+               ) : (
+                 <form onSubmit={(e) => handleSubmission(e, 'dream')} className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                       <div>
+                          <h3 className="text-lg font-bold text-slate-900">Finalize DPR Application</h3>
+                          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest italic">Precision Submission Engine</p>
+                       </div>
+                       <div className="flex gap-4">
+                          <button 
+                            disabled={submitting || uploading || !formData.subcategory} 
+                            className={`px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-3 uppercase text-[10px] tracking-[0.2em] ${formData.subcategory ? 'bg-[#1A3D24] hover:bg-[#1A3D24]/90 text-white shadow-[#1A3D24]/20' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
+                          >
+                            {submitting ? 'Sending...' : 'Transmit DPR'} <Rocket size={14} />
+                          </button>
+                       </div>
                     </div>
-                  ) : (
-                    <>
-                      <h3 className="text-xl font-bold text-slate-900 mb-6">DPR Submission</h3>
-                      <form onSubmit={(e) => handleSubmission(e, 'dream')} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Project Name</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-sm" placeholder="e.g. AgriTech AI" value={formData.projectTitle} onChange={e => setFormData({...formData, projectTitle: e.target.value})} />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Budget (₹)</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-sm" placeholder="e.g. 10L" value={formData.investmentTarget} onChange={e => setFormData({...formData, investmentTarget: e.target.value})} />
-                          </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                           <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Name</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-sm" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                       {/* Column 1: Industry & Project */}
+                       <div className="space-y-4">
+                          <div className="space-y-1">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Industry Category</label>
+                             {formData.category === 'Other' ? (
+                                <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" placeholder="Specify Category" value={formData.subcategory === 'Not Listed' ? '' : formData.subcategory} onChange={e => setFormData({...formData, subcategory: e.target.value})} />
+                             ) : (
+                                <div className="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between">
+                                   <span>{formData.category || 'Select Above'} {formData.subcategory && `> ${formData.subcategory}`}</span>
+                                   {selectedCategory && <span className="text-base">{selectedCategory.icon}</span>}
+                                </div>
+                             )}
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
-                            <input required type="email" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-sm" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Project Title</label>
+                             <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-bold" placeholder="e.g. Smart Dairy Farm" value={formData.projectTitle} onChange={e => setFormData({...formData, projectTitle: e.target.value})} />
                           </div>
-                        </div>
+                       </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                           <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-sm" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                       {/* Column 2: Financials & Personal */}
+                       <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-3">
+                             <div className="space-y-1">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Investment (₹)</label>
+                                <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="Amount" value={formData.investmentTarget} onChange={e => setFormData({...formData, investmentTarget: e.target.value})} />
+                             </div>
+                             <div className="space-y-1">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Primary Location</label>
+                                <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="e.g. Nashik" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
+                             </div>
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Timeline</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-sm" placeholder="e.g. 6mo" value={formData.timeline} onChange={e => setFormData({...formData, timeline: e.target.value})} />
+                             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Applicant Full Name</label>
+                             <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
                           </div>
-                        </div>
+                       </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">DPR Document</label>
-                          <div className="relative">
-                            <input type="file" className="hidden" id="dpr-upload" onChange={handleFileUpload} accept=".pdf,.doc,.docx" />
-                            <label htmlFor="dpr-upload" className={`w-full p-3 flex items-center justify-between bg-white border border-dashed ${dprFileUrl ? 'border-[#1A3D24] bg-green-50' : 'border-slate-200'} rounded-xl cursor-pointer hover:border-[#1A3D24] transition-all`}>
-                                <span className="text-xs text-slate-500 font-medium">{uploading ? 'Uploading...' : dprFileUrl ? 'Uploaded!' : 'Tap to Upload PDF/DOC'}</span>
-                                <FileText className={dprFileUrl ? 'text-[#1A3D24]' : 'text-slate-400'} size={16} />
-                            </label>
+                       {/* Column 3: Contact & Docs */}
+                       <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-3">
+                             <div className="space-y-1">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Email Address</label>
+                                <input required type="email" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                             </div>
+                             <div className="space-y-1">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Phone Number</label>
+                                <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                             </div>
                           </div>
-                        </div>
+                          <div className="space-y-1">
+                             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Upload Preliminary File</label>
+                             <div className="relative">
+                               <input type="file" className="hidden" id="dpr-upload" onChange={handleFileUpload} accept=".pdf,.doc,.docx" />
+                               <label htmlFor="dpr-upload" className={`w-full p-3 flex items-center justify-between bg-white border-2 border-dashed ${dprFileUrl ? 'border-[#1A3D24] bg-green-50' : 'border-slate-100'} rounded-xl cursor-pointer hover:border-[#1A3D24] transition-all`}>
+                                   <span className="text-[10px] text-slate-500 font-bold">{uploading ? 'Wait...' : dprFileUrl ? 'File Ready' : 'Choose PDF/Doc'}</span>
+                                   <FileText className={dprFileUrl ? 'text-[#1A3D24]' : 'text-slate-300'} size={16} />
+                               </label>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Brief Summary</label>
-                          <textarea rows="2" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-sm resize-none" placeholder="Primary goal..." value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} />
-                        </div>
-                        <button disabled={submitting || uploading} className="w-full bg-[#1A3D24] hover:bg-[#0F1E12] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 uppercase text-[10px] tracking-[0.2em] mt-2">
-                          {submitting ? 'Sending...' : 'Submit DPR'} <Rocket size={14} />
-                        </button>
-                      </form>
-                    </>
-                  )}
-                </div>
-             </div>
+                    <div className="space-y-1 pt-2">
+                       <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Vision Summary</label>
+                       <textarea rows="2" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium resize-none" placeholder="Primary project goals..." value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} />
+                    </div>
+                 </form>
+               )}
+            </div>
           </div>
         </section>
       )}
