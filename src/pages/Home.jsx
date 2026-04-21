@@ -65,8 +65,8 @@ const Home = () => {
               We're bridge the gap between agricultural talent, cutting-edge innovation, and global venture investment.
             </p>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-              <button onClick={() => navigate('/career')} className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.1rem' }}>Explore Careers <Briefcase size={20} /></button>
-              <button onClick={() => navigate('/career')} className="btn btn-outline" style={{ padding: '1.25rem 2.5rem', fontSize: '1.1rem', background: 'white' }}>Launch Startup <Rocket size={20} /></button>
+              <button onClick={() => navigate('/career', { state: { tab: 'job-seeker' } })} className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.1rem' }}>Explore Careers <Briefcase size={20} /></button>
+              <button onClick={() => navigate('/career', { state: { tab: 'dream-achiever' } })} className="btn btn-outline" style={{ padding: '1.25rem 2.5rem', fontSize: '1.1rem', background: 'white' }}>Launch Startup <Rocket size={20} /></button>
             </div>
 
             

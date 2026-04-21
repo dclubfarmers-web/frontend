@@ -1,44 +1,29 @@
 import React, { useState } from 'react';
 import { Upload, X, ImageIcon, CheckCircle, AlertCircle } from 'lucide-react';
 import api from '../utils/api';
+import { useFileUpload } from '../hooks/useFileUpload';
 
 const ImageUpload = ({ value, onChange, label = "Upload Image" }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { upload, uploading: loading, error: uploadError } = useFileUpload();
+  const [localError, setLocalError] = useState(null);
+  const error = localError || uploadError;
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Basic validation
-    if (!file.mimetype && !file.type.startsWith('image/')) {
-        setError('Please upload an image file.');
+    if (!file.type.startsWith('image/')) {
+        setLocalError('Please upload an image file.');
         return;
     }
 
-    setLoading(true);
-    setError(null);
-
-    const formData = new FormData();
-    formData.append('file', file);
+    setLocalError(null);
 
     try {
-      // Using raw axios/fetch since we need to send multipart/form-data
-      // Our api utility might need adjustment for file uploads or we can use it directly
-      const response = await api.post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.url) {
-        onChange(response.url);
-      }
+      const url = await upload(file);
+      if (url) onChange(url);
     } catch (err) {
       console.error('Upload Error:', err);
-      setError('Upload failed. Please check your credentials.');
-    } finally {
-      setLoading(false);
     }
   };
 

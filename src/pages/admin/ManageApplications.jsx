@@ -7,6 +7,8 @@ const ManageApplications = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
+  const [category, setCategory] = useState('all');
+
   useEffect(() => {
     fetchApplications();
   }, []);
@@ -21,29 +23,52 @@ const ManageApplications = () => {
     setLoading(false);
   };
 
-  const filteredApps = filter === 'all' 
-    ? applications 
-    : applications.filter(app => app.status === filter);
+  const filteredApps = applications.filter(app => {
+    const matchesStatus = filter === 'all' || app.status === filter;
+    let matchesCategory = true;
+    
+    if (category === 'listed') {
+        matchesCategory = app.job_id !== '00000000-0000-0000-0000-000000000001' && app.job_id !== '00000000-0000-0000-0000-000000000002';
+    } else if (category === 'general') {
+        matchesCategory = app.job_id === '00000000-0000-0000-0000-000000000001';
+    } else if (category === 'dpr') {
+        matchesCategory = app.job_id === '00000000-0000-0000-0000-000000000002';
+    }
+    
+    return matchesStatus && matchesCategory;
+  });
+
+  const counts = {
+    all: applications.length,
+    listed: applications.filter(a => a.job_id !== '00000000-0000-0000-0000-000000000001' && a.job_id !== '00000000-0000-0000-0000-000000000002').length,
+    general: applications.filter(a => a.job_id === '00000000-0000-0000-0000-000000000001').length,
+    dpr: applications.filter(a => a.job_id === '00000000-0000-0000-0000-000000000002').length
+  };
 
   return (
     <div className="space-y-6 animate-fade-in font-sans">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
            <h2 className="text-xl font-bold text-slate-800">Job Applications</h2>
            <p className="text-xs text-slate-500">Review and manage candidate submissions.</p>
         </div>
-        <div className="flex items-center gap-2 bg-white border border-slate-200 p-1.5 rounded-lg">
-           <Filter size={14} className="text-slate-400 ml-2" />
-           <select 
-             className="text-xs font-bold text-slate-600 outline-none bg-transparent pr-4"
-             value={filter}
-             onChange={(e) => setFilter(e.target.value)}
-           >
-              <option value="all">All Applications</option>
-              <option value="pending">Pending Review</option>
-              <option value="interview">Interviewing</option>
-              <option value="rejected">Rejected</option>
-           </select>
+        <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
+             {[
+               { id: 'all', label: 'All', count: counts.all, color: 'bg-slate-900' },
+               { id: 'listed', label: 'Listed', count: counts.listed, color: 'bg-blue-600' },
+               { id: 'general', label: 'Talent Pool', count: counts.general, color: 'bg-emerald-600' },
+               { id: 'dpr', label: 'DPR', count: counts.dpr, color: 'bg-amber-600' }
+             ].map(tab => (
+                <button 
+                  key={tab.id}
+                  onClick={() => setCategory(tab.id)}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                    category === tab.id ? `${tab.color} text-white shadow-lg` : 'text-slate-500 hover:bg-white'
+                  }`}
+                >
+                   {tab.label} <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${category === tab.id ? 'bg-white/20' : 'bg-slate-200 text-slate-500'}`}>{tab.count}</span>
+                </button>
+             ))}
         </div>
       </div>
 
@@ -54,23 +79,28 @@ const ManageApplications = () => {
               <th className="px-6 py-4">Applicant</th>
               <th className="px-6 py-4">Position</th>
               <th className="px-6 py-4">Applied Date</th>
+              <th className="px-6 py-4 text-center">Status</th>
               <th className="px-6 py-4 text-center">Resume</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-sm">
             {loading ? (
-              <tr><td colSpan="4" className="px-6 py-10 text-center"><div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mx-auto"></div></td></tr>
+              <tr><td colSpan="5" className="px-6 py-10 text-center"><div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mx-auto"></div></td></tr>
             ) : filteredApps.length === 0 ? (
-              <tr><td colSpan="4" className="px-6 py-10 text-center text-slate-400">No applications detected.</td></tr>
+              <tr><td colSpan="5" className="px-6 py-10 text-center text-slate-400 font-medium italic">No applications found in this category.</td></tr>
             ) : filteredApps.map((app) => (
               <tr key={app.id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="px-6 py-4">
                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs border border-blue-100 uppercase">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs border uppercase ${
+                        app.job_id === '00000000-0000-0000-0000-000000000001' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                        app.job_id === '00000000-0000-0000-0000-000000000002' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                        'bg-blue-50 text-blue-600 border-blue-100'
+                      }`}>
                          {(app.applicant?.full_name || app.guest_name || 'AP').substring(0, 2)}
                       </div>
                       <div>
-                         <p className="font-bold text-slate-800">{app.applicant?.full_name || app.guest_name || 'Anonymous Applicant'}</p>
+                         <p className="font-bold text-slate-800">{app.applicant?.full_name || app.guest_name || 'Anonymous'}</p>
                          <p className="text-[10px] text-slate-500 font-semibold flex items-center gap-1 uppercase tracking-tighter">
                             <Mail size={10}/> {app.applicant?.email || app.guest_email || 'No Email'}
                          </p>
@@ -78,9 +108,13 @@ const ManageApplications = () => {
                    </div>
                 </td>
                 <td className="px-6 py-4">
-                   <div className="flex items-center gap-2 text-slate-700 font-medium">
-                      <Briefcase size={14} className="text-slate-400"/>
-                      {app.job?.title || 'Unknown Position'}
+                   <div className="flex flex-col">
+                      <div className="flex items-center gap-2 text-slate-700 font-bold text-[11px] uppercase tracking-tight">
+                        <Briefcase size={12} className="text-slate-400"/>
+                        {app.job?.title || 'General Talent Pool'}
+                      </div>
+                      {app.job?.company && <span className="text-[9px] text-slate-400 font-medium ml-5">{app.job.company}</span>}
+                      {app.job_id === '00000000-0000-0000-0000-000000000002' && <span className="text-[8px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full w-fit ml-5 mt-1 font-black uppercase">DPR APPLICATION</span>}
                    </div>
                 </td>
                 <td className="px-6 py-4">
@@ -90,13 +124,23 @@ const ManageApplications = () => {
                    </div>
                 </td>
                 <td className="px-6 py-4 text-center">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                        app.status === 'pending' ? 'bg-slate-100 text-slate-600' :
+                        app.status === 'interview' ? 'bg-blue-50 text-blue-600' :
+                        app.status === 'rejected' ? 'bg-red-50 text-red-600' :
+                        'bg-green-50 text-green-600'
+                    }`}>
+                        {app.status || 'Pending'}
+                    </span>
+                </td>
+                <td className="px-6 py-4 text-center">
                    <a 
                      href={app.resume_url} 
                      target="_blank" 
                      rel="noreferrer"
-                     className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-lg text-xs font-bold transition-all border border-blue-100"
+                     className="inline-flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-slate-900 text-slate-600 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200"
                    >
-                     View CV <ExternalLink size={12}/>
+                     View <ExternalLink size={10}/>
                    </a>
                 </td>
               </tr>
