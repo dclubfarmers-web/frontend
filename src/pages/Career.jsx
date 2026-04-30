@@ -327,7 +327,7 @@ const Career = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-[#034D75] mb-2">Resume (PDF)</label>
+                        <label className="block text-sm font-bold text-[#034D75] mb-2">Resume (PDF) <span className="text-red-500 font-black">* REQUIRED</span></label>
                         <div className="relative">
                           <input
                             type="file"
@@ -499,8 +499,8 @@ const Career = () => {
                       </div>
                       <div className="flex gap-4">
                         <button
-                          disabled={submitting || uploading || !formData.subcategory}
-                          className={`px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-3 uppercase text-[10px] tracking-[0.2em] ${formData.subcategory ? 'bg-[#1A3D24] hover:bg-[#1A3D24]/90 text-white shadow-[#1A3D24]/20' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
+                          disabled={submitting || uploading || !formData.subcategory || !formData.dprUrl}
+                          className={`px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-3 uppercase text-[10px] tracking-[0.2em] ${(formData.subcategory && formData.dprUrl) ? 'bg-[#1A3D24] hover:bg-[#1A3D24]/90 text-white shadow-[#1A3D24]/20' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
                         >
                           {submitting ? 'Sending...' : 'Transmit DPR'} <Rocket size={14} />
                         </button>
@@ -566,7 +566,7 @@ const Career = () => {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">DPR Artifact (PDF ONLY)</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">DPR Artifact (PDF ONLY) <span className="text-red-500 font-black">* REQUIRED</span></label>
                           <div className="relative">
                             <input type="file" className="hidden" id="dpr-upload" onChange={(e) => handleFileUpload(e, 'dpr')} accept=".pdf" />
                             <label htmlFor="dpr-upload" className={`w-full p-4 flex items-center justify-between bg-white border-2 border-dashed ${formData.dprUrl ? 'border-[#1A3D24] bg-green-50' : 'border-slate-100'} rounded-2xl cursor-pointer hover:border-[#1A3D24] transition-all group`}>
