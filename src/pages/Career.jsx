@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // DJAIRINDIA - Career Ecosystem
 import { motion } from 'framer-motion';
-import { Search, Briefcase, ChevronRight, Compass, Users, Globe, Rocket, MapPin, FileText, Upload, Sliders } from 'lucide-react';
+import { Search, Briefcase, ChevronRight, Compass, Users, Globe, Rocket, MapPin, FileText, Upload, Sliders, CheckCircle2 } from 'lucide-react';
 // Force Refresh: 1776458273452
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
