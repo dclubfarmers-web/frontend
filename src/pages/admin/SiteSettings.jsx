@@ -3,6 +3,7 @@ import api from '../../utils/api';
 import { Settings, Save, Globe, Mail, Shield, Smartphone, Bell, Info, Laptop, Hammer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ImageUpload from '../../components/ImageUpload';
+import { useSettings } from '../../context/SettingsContext';
 
 const SiteSettings = () => {
   const [settings, setSettings] = useState({
@@ -21,6 +22,8 @@ const SiteSettings = () => {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
+  const { refreshSettings } = useSettings();
+
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -36,11 +39,11 @@ const SiteSettings = () => {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setSaving(true);
     try {
-       // Send all keys in settings object individually
        await api.put('/api/settings', settings);
+       await refreshSettings(); // Update global state
        alert('Configuration updated successfully.');
     } catch (err) { alert(err.message); }
     setSaving(false);

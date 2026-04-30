@@ -23,24 +23,25 @@ export const SettingsProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const data = await api.get('/api/settings');
-        if (data) {
-          setSettings(prev => ({ ...prev, ...data }));
-        }
-      } catch (err) {
-        console.error('Failed to load site settings:', err);
-      } finally {
-        setLoading(false);
+  const fetchSettings = async () => {
+    try {
+      const data = await api.get('/api/settings');
+      if (data) {
+        setSettings(prev => ({ ...prev, ...data }));
       }
-    };
+    } catch (err) {
+      console.error('Failed to load site settings:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchSettings();
   }, []);
 
   return (
-    <SettingsContext.Provider value={{ settings, loading }}>
+    <SettingsContext.Provider value={{ settings, loading, refreshSettings: fetchSettings }}>
       {children}
     </SettingsContext.Provider>
   );
