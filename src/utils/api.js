@@ -11,21 +11,21 @@ const api = {
   },
 
   async get(endpoint, token = null) {
-    const response = await fetch(`${API_URL}${endpoint}`, { 
-      headers: this.getHeaders(token) 
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      headers: this.getHeaders(token)
     });
     return this.handleResponse(response);
   },
 
   async post(endpoint, body, token = null) {
     const headers = { ...this.getHeaders(token) };
-    
+
     // Support FormData for file uploads
     if (!(body instanceof FormData)) {
-        headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
+      headers['Content-Type'] = 'application/json';
+      body = JSON.stringify(body);
     }
-    
+
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'POST',
       headers,
@@ -35,11 +35,11 @@ const api = {
   },
 
   async put(endpoint, body, token = null) {
-    const headers = { 
-        'Content-Type': 'application/json',
-        ...this.getHeaders(token) 
+    const headers = {
+      'Content-Type': 'application/json',
+      ...this.getHeaders(token)
     };
-    
+
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'PUT',
       headers,
@@ -59,11 +59,11 @@ const api = {
   async handleResponse(response) {
     let data;
     try {
-        data = await response.json();
+      data = await response.json();
     } catch (e) {
-        data = { message: 'Response was not JSON' };
+      data = { message: 'Response was not JSON' };
     }
-    
+
     if (!response.ok) {
       throw new Error(data.message || 'API Request failed');
     }

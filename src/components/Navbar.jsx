@@ -29,15 +29,15 @@ const Navbar = () => {
       <nav className="site-nav">
         <div className="container">
           <Link to="/" className="logo">
-            <img src="/logo.png" alt="DJAIRINDIA" fetchpriority="high" style={{ height: '100px', objectFit: 'contain' }} />
+            <img src="/logo.png" alt="DJAIRINDIA" fetchPriority="high" style={{ height: '100px', objectFit: 'contain' }} />
           </Link>
 
           {/* Desktop Nav */}
           <ul className="nav-links">
             {links.map((link) => (
               <li key={link.path}>
-                <Link 
-                  to={link.path} 
+                <Link
+                  to={link.path}
                   className={`nav-link ${location.pathname === link.path ? 'active' : ''}`}
                 >
                   {link.label}
@@ -59,18 +59,18 @@ const Navbar = () => {
       {/* Mobile Drawer */}
       <div className={`mobile-drawer ${isOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-header">
-           <Link to="/" onClick={() => setIsOpen(false)} className="mobile-logo">
-             <img src="/logo.png" alt="DJAIRINDIA" fetchpriority="high" style={{ height: '80px', objectFit: 'contain' }} />
-           </Link>
-           <button className="mobile-close-btn" onClick={() => setIsOpen(false)}>
-             <X size={28} />
-           </button>
+          <Link to="/" onClick={() => setIsOpen(false)} className="mobile-logo">
+            <img src="/logo.png" alt="DJAIRINDIA" fetchPriority="high" style={{ height: '80px', objectFit: 'contain' }} />
+          </Link>
+          <button className="mobile-close-btn" onClick={() => setIsOpen(false)}>
+            <X size={28} />
+          </button>
         </div>
         <ul className="mobile-nav-links">
           {links.map((link) => (
             <li key={link.path}>
-              <Link 
-                to={link.path} 
+              <Link
+                to={link.path}
                 className={`mobile-nav-link ${location.pathname === link.path ? 'active' : ''}`}
                 onClick={() => setIsOpen(false)}
               >
@@ -83,8 +83,8 @@ const Navbar = () => {
           </li>
         </ul>
         <div className="mobile-drawer-footer">
-           <p>© 2026 DJAIRINDIA PVT LTD</p>
-           <p style={{ fontSize: '10px', opacity: 0.5, marginTop: '4px' }}>Premier Agriculture Solutions</p>
+          <p>© 2026 DJAIRINDIA PVT LTD</p>
+          <p style={{ fontSize: '10px', opacity: 0.5, marginTop: '4px' }}>Premier Agriculture Solutions</p>
         </div>
       </div>
     </>

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Briefcase, MapPin, Clock, Calendar, ChevronLeft, 
-  Send, FileText, CheckCircle2, AlertCircle, Info, Rocket 
+import {
+    Briefcase, MapPin, Clock, Calendar, ChevronLeft,
+    Send, FileText, CheckCircle2, AlertCircle, Info, Rocket
 } from 'lucide-react';
 // Force Refresh: 1776458273452
 import api from '../utils/api';
 import Loader from '../components/Loader';
+
+import { useFileUpload } from '../hooks/useFileUpload';
 
 const JobDetails = () => {
     const { id } = useParams();
@@ -14,14 +16,17 @@ const JobDetails = () => {
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    
+
+    const { upload, uploading } = useFileUpload();
+
     // Form State
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
         phone: '',
         summary: '',
-        resumeUrl: '' // In a real app with file upload, this would be the URL after upload
+        resumeUrl: '',
+        resumeKey: ''
     });
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -40,13 +45,21 @@ const JobDetails = () => {
         setLoading(false);
     };
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const { url, key } = await upload(file);
+            setFormData(prev => ({ ...prev, resumeUrl: url, resumeKey: key }));
+        } catch (err) {
+            alert('File Upload Failed: ' + err.message);
+        }
+    };
+
     const handleApply = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            // For now, we utilize the existing contact/DPR-like flow if application logic requires ID
-            // BUT, I'll send it to /api/applications and hope the backend handles it 
-            // OR I'll update the backend handleResponse to be more flexible.
             await api.post('/api/applications', {
                 jobId: id,
                 ...formData
@@ -71,7 +84,7 @@ const JobDetails = () => {
     return (
         <div className="min-h-screen bg-slate-50 pt-32 pb-20">
             <div className="container max-w-4xl">
-                <button 
+                <button
                     onClick={() => navigate('/career')}
                     className="flex items-center gap-2 text-slate-500 hover:text-[#1A3D24] transition-all mb-8 font-bold text-sm uppercase tracking-widest"
                 >
@@ -88,7 +101,7 @@ const JobDetails = () => {
                             </div>
                             <h1 className="text-3xl font-bold text-slate-900 mb-2">{job.title}</h1>
                             <p className="text-lg text-[#1A3D24] font-bold mb-6 italic">{job.company}</p>
-                            
+
                             <div className="prose prose-slate max-w-none">
                                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4 border-b pb-2">Description & Mission</h3>
                                 <div className="text-slate-600 leading-relaxed whitespace-pre-wrap">
@@ -116,26 +129,38 @@ const JobDetails = () => {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div className="space-y-1">
                                                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
-                                                    <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24]" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
+                                                    <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24]" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} />
                                                 </div>
                                                 <div className="space-y-1">
                                                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
-                                                    <input required type="email" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24]" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                                                    <input required type="email" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24]" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                                                 </div>
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
-                                                <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24]" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                                                <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24]" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Resume Link (e.g. Google Drive/LinkedIn)</label>
-                                                <input required type="url" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24]" placeholder="https://..." value={formData.resumeUrl} onChange={e => setFormData({...formData, resumeUrl: e.target.value})} />
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Resume (PDF)</label>
+                                                <div className="relative">
+                                                    <input type="file" id="resume-upload" className="hidden" onChange={handleFileUpload} accept=".pdf" />
+                                                    <label htmlFor="resume-upload" className={`flex flex-col items-center justify-center p-8 border-2 border-dashed ${formData.resumeUrl ? 'border-[#1A3D24] bg-green-50' : 'border-slate-200'} rounded-2xl cursor-pointer hover:border-[#1A3D24] transition-all group`}>
+                                                        {uploading ? (
+                                                            <Loader />
+                                                        ) : (
+                                                            <>
+                                                                <Rocket className={`${formData.resumeUrl ? 'text-[#1A3D24]' : 'text-slate-300'} mb-2`} size={24} />
+                                                                <span className="text-[10px] font-bold text-slate-500">{formData.resumeUrl ? 'Resume Attached' : 'Click to Upload PDF'}</span>
+                                                            </>
+                                                        )}
+                                                    </label>
+                                                </div>
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Personal Summary</label>
-                                                <textarea rows="4" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] resize-none" value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} />
+                                                <textarea rows="4" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] resize-none" value={formData.summary} onChange={e => setFormData({ ...formData, summary: e.target.value })} />
                                             </div>
-                                            <button 
+                                            <button
                                                 disabled={submitting}
                                                 className="w-full bg-[#1A3D24] hover:bg-[#112616] text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 uppercase text-xs tracking-widest"
                                             >
@@ -156,21 +181,21 @@ const JobDetails = () => {
                             </h3>
                             <div className="space-y-4 mb-8">
                                 <div className="flex gap-4">
-                                    <div className="p-2 bg-green-50 rounded-lg h-fit text-[#1A3D24]"><Clock size={18}/></div>
+                                    <div className="p-2 bg-green-50 rounded-lg h-fit text-[#1A3D24]"><Clock size={18} /></div>
                                     <div>
                                         <p className="text-[10px] uppercase font-black text-slate-400">Response Time</p>
                                         <p className="text-sm font-bold text-slate-700">Usually 48 hours</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="p-2 bg-indigo-50 rounded-lg h-fit text-indigo-600"><Calendar size={18}/></div>
+                                    <div className="p-2 bg-indigo-50 rounded-lg h-fit text-indigo-600"><Calendar size={18} /></div>
                                     <div>
                                         <p className="text-[10px] uppercase font-black text-slate-400">Posted On</p>
                                         <p className="text-sm font-bold text-slate-700">{new Date(job.created_at).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="p-2 bg-emerald-50 rounded-lg h-fit text-emerald-600"><Briefcase size={18}/></div>
+                                    <div className="p-2 bg-emerald-50 rounded-lg h-fit text-emerald-600"><Briefcase size={18} /></div>
                                     <div>
                                         <p className="text-[10px] uppercase font-black text-slate-400">Salary Bracket</p>
                                         <p className="text-sm font-bold text-slate-700">{job.salary || 'Competitive'}</p>
@@ -179,14 +204,14 @@ const JobDetails = () => {
                             </div>
 
                             {!showForm && (
-                                <button 
+                                <button
                                     onClick={() => { setShowForm(true); setTimeout(() => document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
                                     className="w-full bg-[#1A3D24] hover:bg-[#0F1E12] text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 uppercase text-xs tracking-widest"
                                 >
                                     Apply Now <Send size={16} />
                                 </button>
                             )}
-                            
+
                             <div className="mt-8 pt-8 border-t border-slate-100 flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-[#1A3D24]">
                                     <Rocket size={18} />

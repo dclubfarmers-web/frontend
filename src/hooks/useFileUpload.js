@@ -5,6 +5,7 @@ export const useFileUpload = () => {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
     const [fileUrl, setFileUrl] = useState('');
+    const [fileKey, setFileKey] = useState('');
 
     const upload = async (file, folder = 'general') => {
         if (!file) return null;
@@ -21,8 +22,9 @@ export const useFileUpload = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setFileUrl(res.url);
+            setFileKey(res.key);
             setUploading(false);
-            return res.url;
+            return { url: res.url, key: res.key };
         } catch (err) {
             const msg = err.response?.data?.message || err.message || 'Upload failed';
             setError(msg);
@@ -31,5 +33,5 @@ export const useFileUpload = () => {
         }
     };
 
-    return { upload, uploading, error, fileUrl, setFileUrl };
+    return { upload, uploading, error, fileUrl, setFileUrl, fileKey, setFileKey };
 };
