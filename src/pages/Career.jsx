@@ -41,7 +41,9 @@ const Career = () => {
     // DPR Specific
     projectTitle: '',
     investmentTarget: '',
-    location: ''
+    location: '',
+    tenure: '',
+    approxOutcome: ''
   });
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -116,12 +118,17 @@ const Career = () => {
     try {
       if (type === 'dream') {
         const dprJob = jobs.find(j => j.title === 'Dream Achiever Program');
+        const investment = parseInt(formData.investmentTarget.replace(/[^0-9]/g, '')) || 0;
+        const outcome = parseInt(formData.approxOutcome.replace(/[^0-9]/g, '')) || 0;
+        const multiplier = investment > 0 ? (outcome / investment).toFixed(2) : 1.0;
+
         await api.post('/api/applications', {
           jobId: dprJob?._id || dprJob?.id || 'general',
           ...formData,
           tenure: formData.tenure,
-          expected_profit: formData.approxOutcome,
-          investment_value: parseInt(formData.investmentTarget.replace(/[^0-9]/g, '')) || 0
+          expected_profit: multiplier,
+          investment_value: investment,
+          expected_outcome: outcome
         });
       } else {
         await api.post('/api/applications', {
@@ -135,7 +142,7 @@ const Career = () => {
         setFormData({ 
             fullName: '', email: '', phone: '', summary: '', resumeUrl: '', resumeKey: '',
             projectTitle: '', investmentTarget: '', timeline: '', category: '', subcategory: '', 
-            location: '', dprUrl: '', dprKey: '' 
+            location: '', dprUrl: '', dprKey: '', tenure: '', approxOutcome: ''
         });
       }, 5000);
     } catch (err) {
@@ -496,73 +503,80 @@ const Career = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
-                      {/* Column 1: Industry & Project */}
-                      <div className="space-y-4">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Industry Category</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-6">
+                      {/* Column 1: Industry & Vision */}
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Industry Category</label>
                           {formData.category === 'Other' ? (
-                            <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold" placeholder="Specify Category" value={formData.subcategory === 'Not Listed' ? '' : formData.subcategory} onChange={e => setFormData({ ...formData, subcategory: e.target.value })} />
+                            <input className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold focus:ring-1 focus:ring-[#1A3D24] outline-none" placeholder="Specify Category" value={formData.subcategory === 'Not Listed' ? '' : formData.subcategory} onChange={e => setFormData({ ...formData, subcategory: e.target.value })} />
                           ) : (
-                            <div className="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between">
+                            <div className="w-full p-4 bg-slate-100 border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 flex items-center justify-between">
                               <span>{formData.category || 'Select Above'} {formData.subcategory && `> ${formData.subcategory}`}</span>
-                              {selectedCategory && <span className="text-base">{selectedCategory.icon}</span>}
+                              {selectedCategory && <span className="text-lg">{selectedCategory.icon}</span>}
                             </div>
                           )}
                         </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Project Title</label>
-                          <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-bold" placeholder="e.g. Smart Dairy Farm" value={formData.projectTitle} onChange={e => setFormData({ ...formData, projectTitle: e.target.value })} />
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Project Title</label>
+                          <input required className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-bold" placeholder="e.g. Smart Dairy Farm" value={formData.projectTitle} onChange={e => setFormData({ ...formData, projectTitle: e.target.value })} />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Primary Location</label>
+                          <input required className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="e.g. Nashik, Maharashtra" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
                         </div>
                       </div>
 
-                      {/* Column 2: Financials & Personal */}
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Investment (₹)</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="Amount" value={formData.investmentTarget} onChange={e => setFormData({ ...formData, investmentTarget: e.target.value })} />
+                      {/* Column 2: Financial Projections */}
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Investment Target (₹)</label>
+                          <input required className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-bold" placeholder="e.g. 5,00,000" value={formData.investmentTarget} onChange={e => setFormData({ ...formData, investmentTarget: e.target.value })} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Tenure (Months)</label>
+                            <input required type="number" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="24" value={formData.tenure} onChange={e => setFormData({ ...formData, tenure: e.target.value })} />
                           </div>
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Primary Location</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="e.g. Nashik" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Expected Outcome (₹)</label>
+                            <input required className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="e.g. 12,50,000" value={formData.approxOutcome} onChange={e => setFormData({ ...formData, approxOutcome: e.target.value })} />
                           </div>
                         </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Applicant Full Name</label>
-                          <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} />
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Applicant Full Name</label>
+                          <input required className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="e.g. Rahul Sharma" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} />
                         </div>
                       </div>
 
-                      {/* Column 3: Contact & Docs */}
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Email Address</label>
-                            <input required type="email" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                      {/* Column 3: Identity & Documentation */}
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Email Address</label>
+                            <input required type="email" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="rahul@example.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                           </div>
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Phone Number</label>
-                            <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Phone Number</label>
+                            <input required className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="+91 98765 43210" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                           </div>
                         </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Upload Preliminary File</label>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Supporting Artifact (PDF)</label>
                           <div className="relative">
                             <input type="file" className="hidden" id="dpr-upload" onChange={(e) => handleFileUpload(e, 'dpr')} accept=".pdf,.doc,.docx" />
-                            <label htmlFor="dpr-upload" className={`w-full p-3 flex items-center justify-between bg-white border-2 border-dashed ${formData.dprUrl ? 'border-[#1A3D24] bg-green-50' : 'border-slate-100'} rounded-xl cursor-pointer hover:border-[#1A3D24] transition-all`}>
-                              <span className="text-[10px] text-slate-500 font-bold">{uploading ? 'Wait...' : formData.dprUrl ? 'File Ready' : 'Choose PDF/Doc'}</span>
-                              <FileText className={formData.dprUrl ? 'text-[#1A3D24]' : 'text-slate-300'} size={16} />
+                            <label htmlFor="dpr-upload" className={`w-full p-4 flex items-center justify-between bg-white border-2 border-dashed ${formData.dprUrl ? 'border-[#1A3D24] bg-green-50' : 'border-slate-100'} rounded-2xl cursor-pointer hover:border-[#1A3D24] transition-all group`}>
+                              <span className="text-[11px] text-slate-500 font-bold group-hover:text-[#1A3D24]">{uploading ? 'Processing...' : formData.dprUrl ? 'Document Attached' : 'Select Preliminary File'}</span>
+                              <FileText className={formData.dprUrl ? 'text-[#1A3D24]' : 'text-slate-300'} size={18} />
                             </label>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-1 pt-2">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Vision Summary</label>
-                      <textarea rows="2" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium resize-none" placeholder="Primary project goals..." value={formData.summary} onChange={e => setFormData({ ...formData, summary: e.target.value })} />
+                    <div className="space-y-2 pt-4">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Project Vision & Strategic Summary</label>
+                      <textarea rows="3" required className="w-full p-4 bg-slate-50 border border-slate-200 rounded-[1.5rem] outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium resize-none leading-relaxed" placeholder="Describe the primary goals, target demographic, and innovation factor of your vision..." value={formData.summary} onChange={e => setFormData({ ...formData, summary: e.target.value })} />
                     </div>
                   </form>
                 )}

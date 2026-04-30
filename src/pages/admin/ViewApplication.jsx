@@ -33,6 +33,8 @@ const ViewApplication = () => {
     if (investment > 0) {
         const multiplier = (expectedOutcome / investment).toFixed(2);
         setExpectedProfit(multiplier);
+    } else {
+        setExpectedProfit(1.0);
     }
   }, [investment, expectedOutcome]);
 
@@ -48,9 +50,8 @@ const ViewApplication = () => {
       if (isDPRJob) {
         setTenure(data.tenure || 0);
         setInvestment(data.investment_value || 0);
-        const profit = data.expected_profit || 1.0;
-        setExpectedProfit(profit);
-        setExpectedOutcome(Math.round((data.investment_value || 0) * profit));
+        setExpectedOutcome(data.expected_outcome || 0);
+        setExpectedProfit(data.expected_profit || 1.0);
       }
     } catch (err) {
       console.error('Failed to fetch application:', err);
@@ -75,9 +76,16 @@ const ViewApplication = () => {
       await api.put(`/api/applications/${id}`, { 
         tenure: Number(tenure), 
         expected_profit: Number(expectedProfit),
-        investment_value: Number(investment)
+        investment_value: Number(investment),
+        expected_outcome: Number(expectedOutcome)
       });
-      setApplication({ ...application, tenure, expected_profit: expectedProfit, investment_value: investment });
+      setApplication({ 
+        ...application, 
+        tenure, 
+        expected_profit: expectedProfit, 
+        investment_value: investment,
+        expected_outcome: expectedOutcome
+      });
       alert('DPR metrics updated successfully');
     } catch (err) {
       alert('Update failed: ' + err.message);
@@ -203,7 +211,7 @@ const ViewApplication = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {/* Investment Input */}
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Investment (Denom)</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Investment (₹)</label>
                             <div className="relative">
                                 <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                                 <input 
@@ -218,7 +226,7 @@ const ViewApplication = () => {
 
                         {/* Outcome Input */}
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Expected Outcome (Profit)</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Expected Outcome (₹)</label>
                             <div className="relative">
                                 <PieChart className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                                 <input 
