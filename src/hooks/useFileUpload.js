@@ -18,9 +18,7 @@ export const useFileUpload = () => {
         data.append('file', file);
 
         try {
-            const res = await api.post('/api/upload', data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const res = await api.post('/api/upload', data);
             setFileUrl(res.url);
             setFileKey(res.key);
             setUploading(false);

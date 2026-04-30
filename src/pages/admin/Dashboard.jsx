@@ -80,12 +80,12 @@ const Dashboard = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 uppercase">
-                            {app.applicant?.full_name?.substring(0, 2) || 'AP'}
+                            {(app.applicant_id?.full_name || app.guest_name || 'AP').substring(0, 2)}
                         </div>
-                        <span className="text-sm font-medium text-slate-800">{app.applicant?.full_name || 'Anonymous'}</span>
+                        <span className="text-sm font-medium text-slate-800">{app.applicant_id?.full_name || app.guest_name || 'Anonymous'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 font-medium italic">{app.job?.title || 'Unknown Role'}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 font-medium italic">{app.job_id?.title || 'Unknown Role'}</td>
                     <td className="px-6 py-4 text-center text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
                        {new Date(app.created_at).toLocaleDateString()}
                     </td>

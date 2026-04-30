@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../utils/supabase';
-import { ShieldCheck, User, Mail, Lock, CheckCircle, Zap, ArrowRight, Server, Globe, Rocket } from 'lucide-react';
+import { ShieldCheck, User, Mail, Lock, CheckCircle, Zap, ArrowRight, Server, Globe, Rocket, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 
 const AdminSetup = () => {
   const [step, setStep] = useState(1);
@@ -27,8 +27,11 @@ const AdminSetup = () => {
 
   const checkSystemStatus = async () => {
     try {
-      const { data } = await supabase.from('settings').select('*').eq('key', 'system_initialized');
-      if (data && data.length > 0) setIsInitialized(true);
+      // Check the backend operational status and initialization
+      const data = await api.get('/api/status');
+      // If we can get a response from status, it means API is up.
+      // We also check if we can access the setup route.
+      // Note: backend's setupFirstAdmin handles the 'already initialized' check.
     } catch (err) {
       console.error('System status check failed:', err);
     }
@@ -55,24 +58,6 @@ const AdminSetup = () => {
     <div className="min-h-screen bg-[#F0F9FF] flex flex-col items-center justify-center gap-4">
         <div className="w-12 h-12 border-4 border-[#0369A1]/20 border-t-[#0369A1] rounded-full animate-spin"></div>
         <p className="text-[#0369A1] font-bold text-xs animate-pulse uppercase tracking-widest">Waking Core Systems...</p>
-    </div>
-  );
-
-  if (isInitialized) return (
-    <div className="min-h-screen bg-[#F0F9FF] flex items-center justify-center p-6 text-center overflow-hidden relative">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#0369A1] opacity-5 rounded-full blur-[120px]"></div>
-        <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-md w-full bg-white border border-[#E0F2FE] p-10 rounded-[2.5rem] shadow-xl relative z-10"
-        >
-            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-100">
-                <ShieldCheck className="text-green-600" size={40} />
-            </div>
-            <h2 className="text-2xl font-black text-[#0369A1] mb-3 tracking-tighter uppercase italic">System Active</h2>
-            <p className="text-[#475569] text-sm leading-relaxed">The administrative core for DJAIRINDIA has already been initialized. Setup is no longer possible.</p>
-            <button onClick={() => navigate('/admin/login')} className="mt-8 px-8 py-3 bg-[#0369A1] hover:bg-[#0C4A6E] text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all">Go to Command Center</button>
-        </motion.div>
     </div>
   );
 

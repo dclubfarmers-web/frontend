@@ -12,9 +12,6 @@ const Blog = React.lazy(() => import('./pages/Blog'));
 const Contact = React.lazy(() => import('./pages/Contact'));
 const PrivacyPolicy = React.lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = React.lazy(() => import('./pages/TermsOfService'));
-const Todos = React.lazy(() => import('./pages/Todos'));
-const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
-const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const Maintenance = React.lazy(() => import('./pages/Maintenance'));
 
 // Admin Pages
@@ -118,9 +115,7 @@ const AnimatedRoutes = () => {
             <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
             <Route path="/privacy-policy" element={<PageWrapper><PrivacyPolicy /></PageWrapper>} />
             <Route path="/terms-of-service" element={<PageWrapper><TermsOfService /></PageWrapper>} />
-            <Route path="/todos" element={<PageWrapper><Todos /></PageWrapper>} />
-            <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
-            <Route path="/reset-password" element={<PageWrapper><ResetPassword /></PageWrapper>} />
+
 
             {/* Compatibility Redirects */}
             <Route path="/setup" element={<Navigate to="/admin/setup" replace />} />

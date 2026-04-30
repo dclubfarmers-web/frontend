@@ -99,7 +99,7 @@ const AdminLogin = () => {
             </form>
 
             <div className="text-center pt-2">
-                <button onClick={() => navigate('/forgot-password')} className="text-xs text-[#64748B] hover:text-[#1A3D24] transition-colors font-bold tracking-widest underline underline-offset-4">Lost Credentials?</button>
+                <p className="text-[10px] text-[#64748B] font-bold tracking-widest">Contact System Admin for Access</p>
             </div>
           </div>
           
