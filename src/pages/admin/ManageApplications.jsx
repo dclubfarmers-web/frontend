@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
-import { FileText, Eye, Mail, Briefcase, Clock, ExternalLink, Filter } from 'lucide-react';
+import { FileText, Eye, Mail, Briefcase, Clock, ExternalLink, Filter, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ManageApplications = () => {
   const [applications, setApplications] = useState([]);
@@ -80,8 +81,9 @@ const ManageApplications = () => {
               <th className="px-6 py-4">Applicant</th>
               <th className="px-6 py-4">Position</th>
               <th className="px-6 py-4">Applied Date</th>
-              <th className="px-6 py-4 text-center">Status</th>
+               <th className="px-6 py-4 text-center">Status</th>
               <th className="px-6 py-4 text-center">Resume</th>
+              <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-sm">
@@ -132,15 +134,23 @@ const ManageApplications = () => {
                     {app.status || 'Pending'}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-center">
+                 <td className="px-6 py-4 text-center">
                   <a
                     href={app.resume_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-slate-900 text-slate-600 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-slate-200"
                   >
-                    View <ExternalLink size={10} />
+                    Resume <ExternalLink size={10} />
                   </a>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <Link
+                    to={`/admin/applications/${app._id || app.id}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-900/10"
+                  >
+                    Details <ChevronRight size={14} />
+                  </Link>
                 </td>
               </tr>
             ))}

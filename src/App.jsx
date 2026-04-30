@@ -19,6 +19,7 @@ const AdminLayout = React.lazy(() => import('./pages/admin/AdminLayout'));
 const Dashboard = React.lazy(() => import('./pages/admin/Dashboard'));
 const ManageJobs = React.lazy(() => import('./pages/admin/ManageJobs'));
 const ManageApplications = React.lazy(() => import('./pages/admin/ManageApplications'));
+const ViewApplication = React.lazy(() => import('./pages/admin/ViewApplication'));
 const ManageDPRs = React.lazy(() => import('./pages/admin/ManageDPRs'));
 const ManageInbox = React.lazy(() => import('./pages/admin/ManageInbox'));
 const ManageBlogs = React.lazy(() => import('./pages/admin/ManageBlogs'));
@@ -136,6 +137,7 @@ const AnimatedRoutes = () => {
               <Route index element={<Dashboard />} />
               <Route path="jobs" element={<ManageJobs />} />
               <Route path="applications" element={<ManageApplications />} />
+              <Route path="applications/:id" element={<ViewApplication />} />
               <Route path="dprs" element={<ManageDPRs />} />
               <Route path="inbox" element={<ManageInbox />} />
               <Route path="blogs" element={<ManageBlogs />} />
