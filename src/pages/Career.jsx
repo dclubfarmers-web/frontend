@@ -566,9 +566,9 @@ const Career = () => {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Supporting Artifact (PDF)</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-0.5">DPR Artifact (PDF ONLY)</label>
                           <div className="relative">
-                            <input type="file" className="hidden" id="dpr-upload" onChange={(e) => handleFileUpload(e, 'dpr')} accept=".pdf,.doc,.docx" />
+                            <input type="file" className="hidden" id="dpr-upload" onChange={(e) => handleFileUpload(e, 'dpr')} accept=".pdf" />
                             <label htmlFor="dpr-upload" className={`w-full p-4 flex items-center justify-between bg-white border-2 border-dashed ${formData.dprUrl ? 'border-[#1A3D24] bg-green-50' : 'border-slate-100'} rounded-2xl cursor-pointer hover:border-[#1A3D24] transition-all group`}>
                               <span className="text-[11px] text-slate-500 font-bold group-hover:text-[#1A3D24]">{uploading ? 'Processing...' : formData.dprUrl ? 'Document Attached' : 'Select Preliminary File'}</span>
                               <FileText className={formData.dprUrl ? 'text-[#1A3D24]' : 'text-slate-300'} size={18} />

@@ -10,6 +10,13 @@ export const useFileUpload = () => {
     const upload = async (file, folder = 'general') => {
         if (!file) return null;
         
+        // Strict PDF validation for career and dpr documents
+        if (file.type !== 'application/pdf') {
+            const msg = 'Only PDF documents are allowed for this upload.';
+            setError(msg);
+            throw new Error(msg);
+        }
+        
         setUploading(true);
         setError(null);
         
