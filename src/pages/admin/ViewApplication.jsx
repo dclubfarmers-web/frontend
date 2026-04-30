@@ -3,11 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ChevronLeft, FileText, User, Mail, Phone, Calendar, 
   Briefcase, ExternalLink, Trash2, CheckCircle2, 
-  Clock, AlertCircle, MapPin, Download
+  Clock, AlertCircle, MapPin, Download, Save, TrendingUp, History
 } from 'lucide-react';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ViewApplication = () => {
   const { id } = useParams();
@@ -15,6 +15,11 @@ const ViewApplication = () => {
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [isDPR, setIsDPR] = useState(false);
+  
+  // DPR Specific State
+  const [tenure, setTenure] = useState(0);
+  const [expectedProfit, setExpectedProfit] = useState(1.0);
 
   useEffect(() => {
     fetchApplicationDetails();
@@ -24,6 +29,15 @@ const ViewApplication = () => {
     try {
       const data = await api.get(`/api/applications/${id}`);
       setApplication(data);
+      
+      const jobTitle = data.job_id?.title || '';
+      const isDPRJob = jobTitle === 'Dream Achiever Program' || jobTitle.includes('DPR');
+      setIsDPR(isDPRJob);
+      
+      if (isDPRJob) {
+        setTenure(data.tenure || 0);
+        setExpectedProfit(data.expected_profit || 1.0);
+      }
     } catch (err) {
       console.error('Failed to fetch application:', err);
     }
@@ -35,6 +49,21 @@ const ViewApplication = () => {
     try {
       await api.put(`/api/applications/${id}`, { status: newStatus });
       setApplication({ ...application, status: newStatus });
+    } catch (err) {
+      alert('Update failed: ' + err.message);
+    }
+    setUpdating(false);
+  };
+
+  const handleDPRUpdate = async () => {
+    setUpdating(true);
+    try {
+      await api.put(`/api/applications/${id}`, { 
+        tenure: Number(tenure), 
+        expected_profit: Number(expectedProfit) 
+      });
+      setApplication({ ...application, tenure, expected_profit: expectedProfit });
+      alert('DPR metrics updated successfully');
     } catch (err) {
       alert('Update failed: ' + err.message);
     }
@@ -67,8 +96,14 @@ const ViewApplication = () => {
     rejected: 'bg-red-50 text-red-600 border-red-100'
   };
 
+  const getProfitColor = (val) => {
+    if (val >= 2) return 'text-emerald-600 bg-emerald-50 border-emerald-100';
+    if (val >= 1.5) return 'text-orange-600 bg-orange-50 border-orange-100';
+    return 'text-red-600 bg-red-50 border-red-100';
+  };
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-fade-in pb-20">
+    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in pb-20">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
@@ -83,9 +118,14 @@ const ViewApplication = () => {
                 {(application.applicant_id?.full_name || application.guest_name || 'AP').substring(0, 2)}
              </div>
              <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight italic uppercase leading-none">
-                  {application.applicant_id?.full_name || application.guest_name || 'Anonymous Candidate'}
-                </h1>
+                <div className="flex items-center gap-3">
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight italic uppercase leading-none">
+                    {application.applicant_id?.full_name || application.guest_name || 'Anonymous Candidate'}
+                    </h1>
+                    {isDPR && (
+                        <span className="px-2 py-1 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest rounded-md">DPR ARCHITECT</span>
+                    )}
+                </div>
                 <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Application ID: {application.id}</p>
              </div>
           </div>
@@ -112,9 +152,79 @@ const ViewApplication = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Details */}
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Side: Main Details (8 cols) */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* DPR ANALYTICS CARD (New) */}
+          <AnimatePresence>
+            {isDPR && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-[2.5rem] border-2 border-slate-900 p-8 shadow-2xl relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <TrendingUp size={120} className="text-slate-900" />
+                </div>
+
+                <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="space-y-1">
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <TrendingUp size={14} className="text-slate-900" /> DPR Financial Metrics
+                            </h3>
+                            <p className="text-sm font-bold text-slate-900 italic">Project Viability & ROI Projections</p>
+                        </div>
+                        <button 
+                            onClick={handleDPRUpdate}
+                            disabled={updating}
+                            className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20"
+                        >
+                            <Save size={14} /> {updating ? 'Saving...' : 'Commit Changes'}
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Project Tenure (Months)</label>
+                            <div className="relative">
+                                <History className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input 
+                                    type="number"
+                                    value={tenure}
+                                    onChange={(e) => setTenure(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none font-bold text-slate-900 transition-all"
+                                    placeholder="e.g. 24"
+                                />
+                            </div>
+                            <p className="text-[9px] text-slate-400 italic">Duration of the dream achiever implementation phase.</p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Expected Profit Multiplier</label>
+                            <div className="relative">
+                                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input 
+                                    type="number"
+                                    step="0.1"
+                                    value={expectedProfit}
+                                    onChange={(e) => setExpectedProfit(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none font-bold text-slate-900 transition-all"
+                                    placeholder="e.g. 2.5"
+                                />
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-300">X</div>
+                            </div>
+                            <div className={`mt-2 px-4 py-2 rounded-xl border-2 text-[10px] font-black uppercase tracking-widest text-center transition-colors ${getProfitColor(expectedProfit)}`}>
+                                ROI Classification: {expectedProfit >= 2 ? 'Elite (2x+)' : expectedProfit >= 1.5 ? 'Target (1.5x+)' : 'Sub-Optimal (<1.5x)'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Summary Card */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -124,7 +234,7 @@ const ViewApplication = () => {
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
               <FileText size={14} /> Personal Statement
             </h3>
-            <div className="text-slate-600 leading-relaxed italic text-sm border-l-4 border-slate-100 pl-6 py-2">
+            <div className="text-slate-600 leading-relaxed italic text-sm border-l-4 border-slate-100 pl-6 py-2 whitespace-pre-wrap">
               {application.applicant_summary || 'No personal summary provided by the candidate.'}
             </div>
           </motion.div>
@@ -169,8 +279,8 @@ const ViewApplication = () => {
           </motion.div>
         </div>
 
-        {/* Sidebar Info */}
-        <div className="space-y-6">
+        {/* Right Side: Sidebar (4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
           {/* Candidate Profile */}
           <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -209,7 +319,7 @@ const ViewApplication = () => {
             </button>
           </div>
 
-          {/* Status Timeline Placeholder */}
+          {/* System Validation */}
           <div className="bg-emerald-50 rounded-3xl p-8 border border-emerald-100">
              <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-emerald-600 rounded-lg text-white">
