@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { 
-  Target, CheckCircle, XCircle, ArrowRight, Clock, User, 
+  Target, CheckCircle, XCircle, Clock, User, 
   TrendingUp, IndianRupee, History, PieChart, ExternalLink, 
-  Search, Filter, LayoutGrid, List as ListIcon, Save, ChevronRight
+  Search, Filter, LayoutGrid, List as ListIcon, Save, ChevronRight,
+  Eye, FileText, Download, Trash2, ArrowUpRight, Calendar
 } from 'lucide-react';
 import Loader from '../../components/Loader';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ManageDPRs = () => {
+  const navigate = useNavigate();
   const [dprs, setDprs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(null);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
@@ -30,17 +32,6 @@ const ManageDPRs = () => {
     setLoading(false);
   };
 
-  const handleUpdate = async (id, updateData) => {
-    setUpdating(id);
-    try {
-      await api.put(`/api/dpr/${id}/status`, updateData);
-      setDprs(dprs.map(item => item.id === id ? { ...item, ...updateData } : item));
-    } catch (err) {
-      alert('Update failed: ' + err.message);
-    }
-    setUpdating(null);
-  };
-
   const getProfitBadge = (val) => {
     if (!val || val === 0) return null;
     let color = 'bg-red-500';
@@ -48,7 +39,7 @@ const ManageDPRs = () => {
     else if (val >= 1.5) color = 'bg-orange-500';
     
     return (
-      <span className={`px-2 py-0.5 ${color} text-white text-[8px] font-black uppercase tracking-widest rounded-md shadow-lg shadow-${color.split('-')[1]}-500/20`}>
+      <span className={`px-2 py-0.5 ${color} text-white text-[8px] font-black uppercase tracking-widest rounded-md`}>
         {val}x Yield
       </span>
     );
@@ -66,26 +57,26 @@ const ManageDPRs = () => {
   return (
     <div className="space-y-8 animate-fade-in pb-20">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h2 className="text-2xl font-black text-slate-900 italic uppercase tracking-tight">DPR Strategic Requests</h2>
-          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Managing Dream Achiever Program Infrastructure Ingestion</p>
+          <h2 className="text-3xl font-black text-slate-900 italic uppercase tracking-tighter">Strategic Requests</h2>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Dream Achiever Program Analysis Dashboard</p>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
             <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                 <input 
                     type="text"
                     placeholder="Search Visions..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-12 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:border-slate-900 outline-none transition-all w-64"
+                    className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:border-slate-900 outline-none transition-all w-64 shadow-sm"
                 />
             </div>
             <select 
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="px-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest outline-none focus:border-slate-900 transition-all cursor-pointer"
+                className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none focus:border-slate-900 transition-all cursor-pointer shadow-sm"
             >
                 <option value="all">Pipeline: All</option>
                 <option value="pending">Status: Pending</option>
@@ -95,118 +86,140 @@ const ManageDPRs = () => {
         </div>
       </div>
 
-      {/* Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <AnimatePresence mode="popLayout">
-          {filteredDPRs.length === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="col-span-full py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100"
-            >
-              <Target size={48} className="mx-auto text-slate-200 mb-4" />
-              <p className="text-slate-400 font-black uppercase tracking-widest text-xs">No strategic visions found in this sector</p>
-            </motion.div>
-          ) : filteredDPRs.map((item) => (
-            <motion.div 
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              key={item.id} 
-              className="bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col hover:shadow-2xl hover:shadow-slate-200/50 transition-all group relative overflow-hidden"
-            >
-              {/* Status & ROI */}
-              <div className="flex justify-between items-start mb-8 relative z-10">
-                <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg ${
-                        item.status === 'approved' ? 'bg-emerald-50 text-emerald-600 shadow-emerald-100' :
-                        item.status === 'rejected' ? 'bg-red-50 text-red-600 shadow-red-100' :
-                        'bg-amber-50 text-amber-600 shadow-amber-100'
-                    }`}>
-                        <Target size={20} />
+      {/* Table Container */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-xl shadow-slate-200/40">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50 border-b border-slate-100">
+                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Visionary & Project</th>
+                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Yield Multiplier</th>
+                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Investment (₹)</th>
+                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Outcome (₹)</th>
+                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Tenure</th>
+                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Execution</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {filteredDPRs.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-8 py-20 text-center">
+                    <Target size={40} className="mx-auto text-slate-200 mb-3" />
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">No Strategic Ingestions Recorded</p>
+                  </td>
+                </tr>
+              ) : filteredDPRs.map((dpr) => (
+                <motion.tr 
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  key={dpr.id} 
+                  className="group hover:bg-slate-50/50 transition-colors"
+                >
+                  {/* Project & Architect */}
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs uppercase italic">
+                        {dpr.title.substring(0, 2)}
+                      </div>
+                      <div>
+                        <h4 className="font-black text-slate-900 text-xs uppercase tracking-tight leading-none mb-1 group-hover:text-blue-600 transition-colors">
+                          {dpr.title}
+                        </h4>
+                        <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                          <User size={10} /> {dpr.guest_name || 'Architect'}
+                        </p>
+                      </div>
                     </div>
-                    {getProfitBadge(item.expected_profit)}
-                </div>
-                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border-2 ${
-                    item.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                    item.status === 'rejected' ? 'bg-red-50 text-red-600 border-red-100' :
-                    'bg-amber-50 text-amber-600 border-amber-100'
-                }`}>
-                    {item.status}
-                </span>
-              </div>
-              
-              <div className="flex-1 space-y-3 mb-8 relative z-10">
-                <h4 className="font-black text-slate-900 text-lg uppercase leading-tight italic tracking-tight group-hover:text-blue-600 transition-colors">
-                    {item.title}
-                </h4>
-                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <User size={12} /> {item.guest_name || 'Anonymous Architect'}
-                </div>
-                <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3 italic">
-                    {item.details}
-                </p>
-              </div>
-              
-              {/* Financial Metrics Strip */}
-              <div className="grid grid-cols-2 gap-4 mb-8 p-5 bg-slate-50 rounded-3xl relative z-10">
-                <div className="space-y-1">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                    <IndianRupee size={10} /> Investment
-                  </p>
-                  <p className="font-black text-slate-900 text-sm tracking-tight">₹{item.investment_value?.toLocaleString() || '0'}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                    <PieChart size={10} /> Outcome
-                  </p>
-                  <p className="font-black text-slate-900 text-sm tracking-tight">₹{item.expected_outcome?.toLocaleString() || '0'}</p>
-                </div>
-                <div className="space-y-1 pt-2 border-t border-slate-200">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                    <History size={10} /> Tenure
-                  </p>
-                  <p className="font-black text-slate-900 text-xs">{item.tenure || '0'} Months</p>
-                </div>
-                <div className="space-y-1 pt-2 border-t border-slate-200 text-right">
-                   <a 
-                     href={item.dpr_url} 
-                     target="_blank" 
-                     rel="noreferrer" 
-                     className="text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-end gap-1 hover:underline"
-                   >
-                     View DPR <ExternalLink size={10} />
-                   </a>
-                </div>
-              </div>
+                  </td>
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-3 relative z-10">
-                <button 
-                  disabled={updating === item.id}
-                  onClick={() => handleUpdate(item.id, { status: 'approved' })}
-                  className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95"
-                >
-                  {updating === item.id ? '...' : <><CheckCircle size={14} /> Approve</>}
-                </button>
-                <button 
-                  disabled={updating === item.id}
-                  onClick={() => handleUpdate(item.id, { status: 'rejected' })}
-                  className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-400 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all active:scale-95"
-                >
-                   {updating === item.id ? '...' : <><XCircle size={14} /> Reject</>}
-                </button>
-              </div>
+                  {/* Multiplier Badge */}
+                  <td className="px-6 py-5">
+                    {getProfitBadge(dpr.expected_profit)}
+                  </td>
 
-              {/* Decorative Accent */}
-              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-slate-900 opacity-[0.02] rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                  {/* Investment */}
+                  <td className="px-6 py-5 text-center">
+                    <span className="text-[11px] font-black text-slate-700 italic">
+                      ₹{dpr.investment_value?.toLocaleString() || '0'}
+                    </span>
+                  </td>
+
+                  {/* Outcome */}
+                  <td className="px-6 py-5 text-center">
+                    <span className="text-[11px] font-black text-slate-900 italic">
+                      ₹{dpr.expected_outcome?.toLocaleString() || '0'}
+                    </span>
+                  </td>
+
+                  {/* Tenure */}
+                  <td className="px-6 py-5 text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-500">
+                      <Clock size={12} className="text-slate-300" /> {dpr.tenure || '0'}M
+                    </div>
+                  </td>
+
+                  {/* Status Pill */}
+                  <td className="px-6 py-5 text-center">
+                    <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                      dpr.status === 'approved' ? 'bg-emerald-50 text-emerald-600' :
+                      dpr.status === 'rejected' ? 'bg-red-50 text-red-600' :
+                      'bg-amber-50 text-amber-600'
+                    }`}>
+                      {dpr.status}
+                    </span>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-8 py-5 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                       <button 
+                         onClick={() => navigate(`/admin/applications/view/${dpr.id}`)} // Currently pointing to unified view
+                         className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
+                         title="Detailed View"
+                       >
+                         <Eye size={18} />
+                       </button>
+                       <a 
+                         href={dpr.dpr_url} 
+                         target="_blank" 
+                         rel="noreferrer"
+                         className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                         title="Download Artifact"
+                       >
+                         <Download size={18} />
+                       </a>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Analytics Footer */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatCard icon={<Target className="text-blue-600"/>} label="Total Strategic Visions" value={dprs.length} />
+          <StatCard icon={<TrendingUp className="text-emerald-600"/>} label="Elite Yield (2x+)" value={dprs.filter(d => d.expected_profit >= 2).length} />
+          <StatCard icon={<PieChart className="text-orange-600"/>} label="Pending Review" value={dprs.filter(d => d.status === 'pending').length} />
+          <StatCard icon={<IndianRupee className="text-slate-900"/>} label="Total Projected Capital" value={`₹${dprs.reduce((acc, curr) => acc + (curr.investment_value || 0), 0).toLocaleString()}`} />
       </div>
     </div>
   );
 };
+
+const StatCard = ({ icon, label, value }) => (
+    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
+            {icon}
+        </div>
+        <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+            <p className="text-lg font-black text-slate-900 italic leading-none">{value}</p>
+        </div>
+    </div>
+);
 
 export default ManageDPRs;

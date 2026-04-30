@@ -117,18 +117,22 @@ const Career = () => {
     setSubmitting(true);
     try {
       if (type === 'dream') {
-        const dprJob = jobs.find(j => j.title === 'Dream Achiever Program');
         const investment = parseInt(formData.investmentTarget.replace(/[^0-9]/g, '')) || 0;
         const outcome = parseInt(formData.approxOutcome.replace(/[^0-9]/g, '')) || 0;
         const multiplier = investment > 0 ? (outcome / investment).toFixed(2) : 1.0;
 
-        await api.post('/api/applications', {
-          jobId: dprJob?._id || dprJob?.id || 'general',
-          ...formData,
-          tenure: formData.tenure,
-          expected_profit: multiplier,
-          investment_value: investment,
-          expected_outcome: outcome
+        await api.post('/api/dpr', {
+          title: formData.projectTitle || 'Strategic Vision',
+          details: formData.summary,
+          investmentValue: investment,
+          expectedOutcome: outcome,
+          expectedProfit: Number(multiplier),
+          tenure: Number(formData.tenure) || 0,
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          dprUrl: formData.dprUrl,
+          dprKey: formData.dprKey
         });
       } else {
         await api.post('/api/applications', {
