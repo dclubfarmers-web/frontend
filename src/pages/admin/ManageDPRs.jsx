@@ -175,7 +175,7 @@ const ManageDPRs = () => {
                   <td className="px-8 py-5 text-right">
                     <div className="flex items-center justify-end gap-2">
                        <button 
-                         onClick={() => navigate(`/admin/applications/view/${dpr.id}`)} // Currently pointing to unified view
+                         onClick={() => navigate(`/admin/dprs/view/${dpr.id}`)}
                          className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
                          title="Detailed View"
                        >
