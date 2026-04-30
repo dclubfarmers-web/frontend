@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ChevronLeft, FileText, User, Mail, Phone, Calendar, 
   Briefcase, ExternalLink, Trash2, CheckCircle2, 
-  Clock, AlertCircle, MapPin, Download, Save, TrendingUp, History
+  Clock, AlertCircle, MapPin, Download, Save, TrendingUp, History,
+  IndianRupee, PieChart
 } from 'lucide-react';
 import api from '../../utils/api';
 import Loader from '../../components/Loader';
@@ -19,11 +20,21 @@ const ViewApplication = () => {
   
   // DPR Specific State
   const [tenure, setTenure] = useState(0);
+  const [investment, setInvestment] = useState(0);
+  const [expectedOutcome, setExpectedOutcome] = useState(0);
   const [expectedProfit, setExpectedProfit] = useState(1.0);
 
   useEffect(() => {
     fetchApplicationDetails();
   }, [id]);
+
+  // Auto-calculate multiplier when outcome or investment changes
+  useEffect(() => {
+    if (investment > 0) {
+        const multiplier = (expectedOutcome / investment).toFixed(2);
+        setExpectedProfit(multiplier);
+    }
+  }, [investment, expectedOutcome]);
 
   const fetchApplicationDetails = async () => {
     try {
@@ -36,7 +47,10 @@ const ViewApplication = () => {
       
       if (isDPRJob) {
         setTenure(data.tenure || 0);
-        setExpectedProfit(data.expected_profit || 1.0);
+        setInvestment(data.investment_value || 0);
+        const profit = data.expected_profit || 1.0;
+        setExpectedProfit(profit);
+        setExpectedOutcome(Math.round((data.investment_value || 0) * profit));
       }
     } catch (err) {
       console.error('Failed to fetch application:', err);
@@ -60,9 +74,10 @@ const ViewApplication = () => {
     try {
       await api.put(`/api/applications/${id}`, { 
         tenure: Number(tenure), 
-        expected_profit: Number(expectedProfit) 
+        expected_profit: Number(expectedProfit),
+        investment_value: Number(investment)
       });
-      setApplication({ ...application, tenure, expected_profit: expectedProfit });
+      setApplication({ ...application, tenure, expected_profit: expectedProfit, investment_value: investment });
       alert('DPR metrics updated successfully');
     } catch (err) {
       alert('Update failed: ' + err.message);
@@ -156,7 +171,7 @@ const ViewApplication = () => {
         {/* Left Side: Main Details (8 cols) */}
         <div className="lg:col-span-8 space-y-8">
           
-          {/* DPR ANALYTICS CARD (New) */}
+          {/* DPR ANALYTICS CARD */}
           <AnimatePresence>
             {isDPR && (
               <motion.div 
@@ -172,9 +187,9 @@ const ViewApplication = () => {
                     <div className="flex items-center justify-between mb-8">
                         <div className="space-y-1">
                             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                                <TrendingUp size={14} className="text-slate-900" /> DPR Financial Metrics
+                                <TrendingUp size={14} className="text-slate-900" /> DPR Automated Analytics
                             </h3>
-                            <p className="text-sm font-bold text-slate-900 italic">Project Viability & ROI Projections</p>
+                            <p className="text-sm font-bold text-slate-900 italic">Project Viability & Real-time ROI Ingestion</p>
                         </div>
                         <button 
                             onClick={handleDPRUpdate}
@@ -185,39 +200,63 @@ const ViewApplication = () => {
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Investment Input */}
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Project Tenure (Months)</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Investment (Denom)</label>
+                            <div className="relative">
+                                <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input 
+                                    type="number"
+                                    value={investment}
+                                    onChange={(e) => setInvestment(Number(e.target.value))}
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none font-bold text-slate-900 transition-all"
+                                    placeholder="e.g. 500000"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Outcome Input */}
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Expected Outcome (Profit)</label>
+                            <div className="relative">
+                                <PieChart className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input 
+                                    type="number"
+                                    value={expectedOutcome}
+                                    onChange={(e) => setExpectedOutcome(Number(e.target.value))}
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none font-bold text-slate-900 transition-all"
+                                    placeholder="e.g. 1250000"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Tenure Input */}
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Tenure (Months)</label>
                             <div className="relative">
                                 <History className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                                 <input 
                                     type="number"
                                     value={tenure}
-                                    onChange={(e) => setTenure(e.target.value)}
+                                    onChange={(e) => setTenure(Number(e.target.value))}
                                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none font-bold text-slate-900 transition-all"
                                     placeholder="e.g. 24"
                                 />
                             </div>
-                            <p className="text-[9px] text-slate-400 italic">Duration of the dream achiever implementation phase.</p>
                         </div>
+                    </div>
 
-                        <div className="space-y-4">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Expected Profit Multiplier</label>
-                            <div className="relative">
-                                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                                <input 
-                                    type="number"
-                                    step="0.1"
-                                    value={expectedProfit}
-                                    onChange={(e) => setExpectedProfit(e.target.value)}
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-slate-900 outline-none font-bold text-slate-900 transition-all"
-                                    placeholder="e.g. 2.5"
-                                />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-300">X</div>
+                    <div className="mt-8 p-6 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Calculated ROI Multiplier</p>
+                            <div className="flex items-baseline gap-2">
+                                <span className={`text-4xl font-black italic transition-colors ${getProfitColor(expectedProfit).split(' ')[0]}`}>{expectedProfit}x</span>
+                                <span className="text-xs font-bold text-slate-400">Yield Coefficient</span>
                             </div>
-                            <div className={`mt-2 px-4 py-2 rounded-xl border-2 text-[10px] font-black uppercase tracking-widest text-center transition-colors ${getProfitColor(expectedProfit)}`}>
-                                ROI Classification: {expectedProfit >= 2 ? 'Elite (2x+)' : expectedProfit >= 1.5 ? 'Target (1.5x+)' : 'Sub-Optimal (<1.5x)'}
-                            </div>
+                        </div>
+                        <div className={`px-6 py-4 rounded-2xl border-2 font-black text-xs uppercase tracking-widest text-center transition-colors min-w-[200px] ${getProfitColor(expectedProfit)}`}>
+                             Classification: {expectedProfit >= 2 ? 'Elite (2x+)' : expectedProfit >= 1.5 ? 'Target (1.5x+)' : 'Sub-Optimal'}
                         </div>
                     </div>
                 </div>

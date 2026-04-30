@@ -41,9 +41,6 @@ const Career = () => {
     // DPR Specific
     projectTitle: '',
     investmentTarget: '',
-    timeline: '',
-    category: '',
-    subcategory: '',
     location: ''
   });
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -118,15 +115,13 @@ const Career = () => {
     setSubmitting(true);
     try {
       if (type === 'dream') {
-        await api.post('/api/dpr', {
-          title: formData.projectTitle || `DPR: ${formData.category} - ${formData.subcategory}`,
-          details: `MISSION: ${formData.summary}\nTIMELINE: ${formData.timeline}\nVALUE: ${formData.investmentTarget}\nCATEGORY: ${formData.category}\nSUBCATEGORY: ${formData.subcategory}\nLOCATION: ${formData.location}`,
-          dreamValue: parseInt(formData.investmentTarget.replace(/[^0-9]/g, '')) || 0,
-          dprUrl: formData.dprUrl,
-          dprKey: formData.dprKey,
-          fullName: formData.fullName,
-          email: formData.email,
-          phone: formData.phone
+        const dprJob = jobs.find(j => j.title === 'Dream Achiever Program');
+        await api.post('/api/applications', {
+          jobId: dprJob?._id || dprJob?.id || 'general',
+          ...formData,
+          tenure: formData.tenure,
+          expected_profit: formData.approxOutcome,
+          investment_value: parseInt(formData.investmentTarget.replace(/[^0-9]/g, '')) || 0
         });
       } else {
         await api.post('/api/applications', {
@@ -533,6 +528,7 @@ const Career = () => {
                             <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" placeholder="e.g. Nashik" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
                           </div>
                         </div>
+
                         <div className="space-y-1">
                           <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-0.5">Applicant Full Name</label>
                           <input required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-[#1A3D24] text-xs font-medium" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} />
